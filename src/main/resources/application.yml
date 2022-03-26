@@ -1,0 +1,30 @@
+server:
+  port: ${SERVER_PORT:8080}
+spring:
+  application.name: ${APPLICATION_NAME:spring-security-keycloak}
+  datasource:
+    url: jdbc:postgresql://localhost:5431/main_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+keycloak:
+  auth-server-url: http://localhost:8484/auth
+  realm: test_realm
+  resource: login_app
+  public-client: true
+  bearer-only: true
+
+springdoc:
+  version: '@springdoc.version@'
+  swagger-ui:
+    oauth:
+      clientId: login_app
+
+oAuthFlow:
+  authorizationUrl: ${OAUTH2_SERVER:http://localhost:8084}/auth/realms/test_realm/protocol/openid-connect/auth
+  tokenUrl: ${OAUTH2_SERVER:http://localhost:8084}/auth/realms/test_realm/protocol/openid-connect/token
