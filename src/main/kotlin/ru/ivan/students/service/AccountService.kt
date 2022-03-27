@@ -10,6 +10,7 @@ class AccountService {
     @Autowired
     private lateinit var accountRepository: AccountRepository
 
+    fun existsById(id: String) = accountRepository.existsAccountById(id)
     fun findAccountById(id: String) = accountRepository.findById(id)
     fun createAccount(account: Account): Account {
         return accountRepository.save(account)

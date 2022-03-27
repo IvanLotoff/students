@@ -6,4 +6,5 @@ import ru.ivan.students.domian.Account
 
 @Repository
 interface AccountRepository: JpaRepository<Account, String> {
+    fun existsAccountById(id: String): Boolean
 }

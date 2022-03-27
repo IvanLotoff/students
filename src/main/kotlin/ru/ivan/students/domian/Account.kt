@@ -11,9 +11,7 @@ import javax.persistence.*
 data class Account(
     @Id
     @Column(name = "account_id", updatable = false)
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid", strategy = "uuid")
-    val id: String,
+    val id: String? = null,
     val name: String,
     val purpose: String,
     val description: String,
@@ -23,7 +21,6 @@ data class Account(
     val status: String,
     val deadlineProjectDateTo: String,
     val deadlineTeamDateTo: String,
-    var userId: String? = null,
     @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @JoinTable(
         name = "accounts_projects",
@@ -31,7 +28,7 @@ data class Account(
         inverseJoinColumns = [JoinColumn(name = "project_id")]
     )
     @JsonProperty(access = WRITE_ONLY)
-    val likes: Set<Project>?
+    val likes: Set<Project>? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
