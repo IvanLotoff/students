@@ -1,5 +1,8 @@
 package ru.ivan.students.dto
 
+/** Принимает инфу от пользователя
+ *
+ */
 data class AccountDTO(
     val name: String,
     val purpose: String,
