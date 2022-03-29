@@ -54,5 +54,8 @@ class KeycloakConfig : KeycloakWebSecurityConfigurerAdapter() {
             .disable()
             .authorizeRequests()
             .antMatchers("/swagger*/**", "/v3/api-docs", "/actuator/**").permitAll()
+            .and()
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
     }
 }

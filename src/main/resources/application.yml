@@ -13,7 +13,7 @@ spring:
     show-sql: true
 
 keycloak:
-  auth-server-url: http://localhost:8080/auth
+  auth-server-url: http://localhost:8484/auth
   realm: test_realm
   resource: login_app
   public-client: true

@@ -5,9 +5,7 @@ import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import ru.ivan.students.domian.CV
 import ru.ivan.students.dto.CVDto
 import ru.ivan.students.service.CVService
@@ -22,10 +20,10 @@ class CVController {
     @GetMapping("/all")
     fun showAll(): List<CV> = cvService.showAll()
 
-    @GetMapping("/add")
+    @PostMapping("/add")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "security_auth")
-    fun addCV(principal: Principal, cvDto: CVDto): ResponseEntity<CV> {
+    fun addCV(principal: Principal, @RequestBody cvDto: CVDto): ResponseEntity<CV> {
         return ResponseEntity.ok(cvService.saveCV(cvDto))
     }
 
