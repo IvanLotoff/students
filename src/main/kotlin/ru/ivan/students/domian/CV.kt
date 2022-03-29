@@ -1,7 +1,5 @@
 package ru.ivan.students.domian
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY
 import org.hibernate.Hibernate
 import org.hibernate.annotations.GenericGenerator
 import javax.persistence.*
@@ -11,6 +9,8 @@ import javax.persistence.*
 data class CV(
     @Id
     @Column(name = "cv_id", updatable = false)
+    @GeneratedValue(generator="system-uuid")
+    @GenericGenerator(name="system-uuid", strategy = "uuid")
     val id: String? = null,
     val nameCV: String,
     val aboutInfo: String,
@@ -21,7 +21,7 @@ data class CV(
     val language: String,
     val workSchedule: String,
     val skill: String,
-    val Busyness : String,
+    val busyness : String
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -36,6 +36,4 @@ data class CV(
     override fun toString(): String {
         return this::class.simpleName + "(id = $id )"
     }
-
-
 }
