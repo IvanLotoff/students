@@ -27,6 +27,7 @@ class AccountController {
         val account = accountDTOToAccount.map(accountDto)
         if(accountService.existsById(principal.name))
             throw RuntimeException("Already reigstered")
+        account.id = principal.name
         return ResponseEntity.ok(accountService.createAccount(account))
     }
 
