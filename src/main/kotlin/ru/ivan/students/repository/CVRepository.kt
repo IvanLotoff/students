@@ -6,5 +6,5 @@ import ru.ivan.students.domian.CV
 import ru.ivan.students.domian.Project
 
 @Repository
-interface CVRepository: JpaRepository<CV, Long> {
+interface CVRepository: JpaRepository<CV, String> {
 }
