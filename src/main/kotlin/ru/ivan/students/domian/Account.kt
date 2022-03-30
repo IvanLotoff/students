@@ -8,22 +8,23 @@ import javax.persistence.*
 @Entity
 @Table(name = "accounts")
 data class Account(
-        @Id
-        @Column(name = "account_id", updatable = false)
-        val id: String? = null,
-        val name: String,
-        val purpose: String,
-        val description: String,
-        val deadlineProjectDateFrom: String,
-        val participantsNumber: Int,
-        val recordingPeriod: String,
-        val status: String,
-        val deadlineProjectDateTo: String,
-        val deadlineTeamDateTo: String,
-        @OneToMany(cascade = arrayOf(CascadeType.ALL))
-        @JoinColumn(name= "account_id")
-        private val cvs: MutableList<CV> = mutableListOf<CV>(),
-        @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @Id
+    @Column(name = "account_id", updatable = false)
+    var id: String? = null,
+    val name: String? = null,
+    val purpose: String? = null,
+    val description: String? = null,
+    val deadlineProjectDateFrom: String? = null,
+    val participantsNumber: Int? = null,
+    val recordingPeriod: String? = null,
+    val status: String? = null,
+    val deadlineProjectDateTo: String? = null,
+    val deadlineTeamDateTo: String? = null,
+
+    @OneToMany(mappedBy = "account")
+    val cvs: MutableList<CV> = mutableListOf(),
+
+    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
         @JoinTable(
                 name = "accounts_projects",
                 joinColumns = [JoinColumn(name = "account_id")],

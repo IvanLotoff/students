@@ -21,7 +21,11 @@ data class CV(
     val language: String,
     val workSchedule: String,
     val skill: String,
-    val busyness : String
+    val busyness : String,
+
+    @ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @JoinColumn(name = "account_id")
+    var account: Account? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

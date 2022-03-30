@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import ru.ivan.students.domian.Account
-import ru.ivan.students.dto.AccountDTO
+import ru.ivan.students.dto.request.AccountRequest
 import ru.ivan.students.mapper.AccountDTOToAccount
 import ru.ivan.students.service.AccountService
 import java.security.Principal
@@ -23,8 +23,8 @@ class AccountController {
     @PostMapping("/register")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "security_auth")
-    fun saveAccount(principal: Principal, @RequestBody accountDto: AccountDTO): ResponseEntity<Account> {
-        val account = accountDTOToAccount.map(accountDto)
+    fun saveAccount(principal: Principal, @RequestBody accountRequest: AccountRequest): ResponseEntity<Account> {
+        val account = accountDTOToAccount.map(accountRequest)
         if(accountService.existsById(principal.name))
             throw RuntimeException("Already reigstered")
         account.id = principal.name

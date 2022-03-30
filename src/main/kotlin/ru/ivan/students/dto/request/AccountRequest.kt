@@ -1,9 +1,9 @@
-package ru.ivan.students.dto
+package ru.ivan.students.dto.request
 
 /** Принимает инфу от пользователя
  *
  */
-data class AccountDTO(
+data class AccountRequest(
     val name: String,
     val purpose: String,
     val description: String,

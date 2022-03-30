@@ -1,6 +1,6 @@
-package ru.ivan.students.dto
+package ru.ivan.students.dto.request
 
-data class CVDto(
+data class CVRequest(
     val nameCV: String,
     val aboutInfo: String,
     val school: String,
