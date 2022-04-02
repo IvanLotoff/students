@@ -26,7 +26,7 @@ class AccountController {
     fun saveAccount(principal: Principal, @RequestBody accountRequest: AccountRequest): ResponseEntity<Account> {
         val account = accountDTOToAccount.map(accountRequest)
         if(accountService.existsById(principal.name))
-            throw RuntimeException("Already reigstered")
+            throw RuntimeException("Already registered")
         account.id = principal.name
         return ResponseEntity.ok(accountService.createAccount(account))
     }

@@ -12,14 +12,8 @@ data class Account(
     @Column(name = "account_id", updatable = false)
     var id: String? = null,
     val name: String? = null,
-    val purpose: String? = null,
-    val description: String? = null,
-    val deadlineProjectDateFrom: String? = null,
-    val participantsNumber: Int? = null,
-    val recordingPeriod: String? = null,
+    val surname: String? = null,
     val status: String? = null,
-    val deadlineProjectDateTo: String? = null,
-    val deadlineTeamDateTo: String? = null,
 
     @OneToMany(mappedBy = "account")
     val cvs: MutableList<CV> = mutableListOf(),

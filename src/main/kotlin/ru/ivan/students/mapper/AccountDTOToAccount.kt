@@ -8,13 +8,7 @@ import ru.ivan.students.dto.request.AccountRequest
 class AccountDTOToAccount {
     fun map(accountRequest: AccountRequest) = Account(
         name = accountRequest.name,
-        purpose = accountRequest.purpose,
-        description = accountRequest.description,
-        deadlineProjectDateFrom = accountRequest.deadlineProjectDateFrom,
-        deadlineTeamDateTo = accountRequest.deadlineTeamDateTo,
-        deadlineProjectDateTo = accountRequest.deadlineProjectDateTo,
+        surname = accountRequest.suraname,
         status = accountRequest.status,
-        participantsNumber = accountRequest.participantsNumber,
-        recordingPeriod = accountRequest.recordingPeriod
     )
 }
