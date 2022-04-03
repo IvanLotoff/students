@@ -15,7 +15,7 @@ data class Project(
     @Id
     @GeneratedValue(generator="system-uuid")
     @GenericGenerator(name="system-uuid", strategy = "uuid")
-    val id: String,
+    val id: String? = null,
     val interests: String,
     val tag: String,
     val skills: String,
@@ -23,7 +23,7 @@ data class Project(
     val telegram: String,
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "likes")
     @JsonProperty(access = WRITE_ONLY)
-    val likedProjects: Set<Account>?
+    val likedProjects: Set<Account>? = null
 ) {
 
     override fun equals(other: Any?): Boolean {

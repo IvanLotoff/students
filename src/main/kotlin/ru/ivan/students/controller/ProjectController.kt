@@ -36,7 +36,7 @@ class ProjectController {
     fun showRecommendedProjects(principal: Principal,@RequestBody projectRequest: ProjectRequest): List<ResponseEntity<Project>> {
         //Добавить по принципал акк пользователя
         principal.name
-        return projectService.searchRecommendedProjects(Account()).map {
+        return projectService.searchRecommendedProjects(principal.name).map {
             ResponseEntity.ok(it)
         }
     }

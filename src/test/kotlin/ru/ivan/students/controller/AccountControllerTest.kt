@@ -20,6 +20,7 @@ internal class AccountControllerTest {
 
 
 
+    @LocalServerPort
     private val port=8080
 
     @Autowired

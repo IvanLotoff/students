@@ -12,11 +12,14 @@ import ru.ivan.students.dto.response.CVResponse
 class ProjectConverter {
 
 
-//    fun map(pr :ProjectRequest) = Project(
-//        interests = pr.interests,
-//        tag = pr.tag,
-//        skills= pr.skills,
-//        description= pr.description,
-//        telegram= pr.telegram
-//    )
+    fun map(pr :ProjectRequest) = Project(
+        interests = pr.interests,
+        tag = pr.tag,
+        skills= pr.skills,
+        description= pr.description,
+        telegram= pr.telegram
+    )
+
+
+
 }

@@ -6,4 +6,5 @@ import ru.ivan.students.domian.Project
 
 @Repository
 interface ProjectRepository: JpaRepository<Project, String> {
+
 }
