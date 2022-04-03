@@ -15,14 +15,11 @@ import ru.ivan.students.service.ProjectService
 import java.security.Principal
 
 @RestController
-@RequestMapping("/api/test/")
+@RequestMapping("/api/project/")
 class ProjectController {
 
     @Autowired
     private lateinit var projectService: ProjectService
-
-    @Autowired
-    private lateinit var accountDTOToAccount: AccountDTOToAccount
 
     @GetMapping("user")
     @PreAuthorize("hasRole('USER')")

@@ -11,7 +11,11 @@ data class Account(
     @Id
     @Column(name = "account_id", updatable = false)
     var id: String? = null,
-    val name: String? = null,
+    val email: String? = null,
+    val nickName: String? = null,
+    val phoneNumber: String? = null,
+    val firstName: String? = null,
+    val lastName: String? = null,
     val surname: String? = null,
     val status: String? = null,
 

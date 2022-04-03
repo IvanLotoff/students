@@ -4,7 +4,11 @@ package ru.ivan.students.dto.request
  *
  */
 data class AccountRequest(
-    val name: String,
-    val suraname: String,
-    val status: String
+    val email: String,
+    val nickName: String,
+    val phoneNumber: String,
+    val firstName: String,
+    val lastName: String,
+    val surname: String,
+    val status: String,
 )
