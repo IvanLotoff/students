@@ -14,8 +14,6 @@ class ProjectConverter {
 
     fun map(pr :ProjectRequest) = Project(
         interests = pr.interests,
-        tag = pr.tag,
-        skills= pr.skills,
         description= pr.description,
         telegram= pr.telegram
     )

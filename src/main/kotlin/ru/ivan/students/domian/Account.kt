@@ -3,7 +3,9 @@ package ru.ivan.students.domian
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY
 import org.hibernate.Hibernate
+import org.hibernate.annotations.Cascade
 import javax.persistence.*
+import javax.validation.constraints.Size
 
 @Entity
 @Table(name = "accounts")
@@ -19,17 +21,15 @@ data class Account(
     val surname: String? = null,
     val status: String? = null,
 
-    @OneToMany(mappedBy = "account")
+
+
+    @Size(max = 5)
+    @OneToMany(mappedBy = "account",cascade = arrayOf(CascadeType.ALL))
     val cvs: MutableList<CV> = mutableListOf(),
 
-    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-        @JoinTable(
-                name = "accounts_projects",
-                joinColumns = [JoinColumn(name = "account_id")],
-                inverseJoinColumns = [JoinColumn(name = "project_id")]
-        )
-        @JsonProperty(access = WRITE_ONLY)
-        val likes: Set<Project>? = null
+    @JoinColumn(name = "account_id")
+    @OneToMany()
+    val likes: MutableList<Project> = mutableListOf(),
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

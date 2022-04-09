@@ -1,26 +1,25 @@
 package ru.ivan.students.domian
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY
 import org.hibernate.Hibernate
-import org.hibernate.annotations.GenericGenerator
 import javax.persistence.*
 
 @Entity
-@Table(name = "skills")
-data class Skill(
+@Table(name = "tags")
+data class Tag(
     @Id
     @Column(name = "skill_id", updatable = false)
     val id: String? = null,
     val name: String,
-    val spec: String,
-    val tag: Int,
     val about: String,
 ) {
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    open var project: Project? = null
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
-        other as Skill
+        other as Tag
 
         return id == other.id
     }
