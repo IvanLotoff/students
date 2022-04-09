@@ -1,9 +1,8 @@
 package ru.ivan.students.domian
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY
 import org.hibernate.Hibernate
 import javax.persistence.*
+import javax.validation.constraints.Size
 
 @Entity
 @Table(name = "accounts")
@@ -22,7 +21,7 @@ data class Account(
 
 
     @Size(max = 5)
-    @OneToMany(mappedBy = "account",cascade = arrayOf(CascadeType.ALL))
+    @OneToMany(mappedBy = "account",cascade = [CascadeType.ALL])
     val cvs: MutableList<CV> = mutableListOf(),
 
     @JoinColumn(name = "account_id")
