@@ -19,17 +19,15 @@ data class Account(
     val surname: String? = null,
     val status: String? = null,
 
-    @OneToMany(mappedBy = "account")
+
+
+    @Size(max = 5)
+    @OneToMany(mappedBy = "account",cascade = arrayOf(CascadeType.ALL))
     val cvs: MutableList<CV> = mutableListOf(),
 
-    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-        @JoinTable(
-                name = "accounts_projects",
-                joinColumns = [JoinColumn(name = "account_id")],
-                inverseJoinColumns = [JoinColumn(name = "project_id")]
-        )
-        @JsonProperty(access = WRITE_ONLY)
-        val likes: Set<Project>? = null,
+    @JoinColumn(name = "account_id")
+    @OneToMany()
+    val likes: MutableList<Project> = mutableListOf(),
 
     @OneToMany
     val courses: List<Course> = listOf()

@@ -22,14 +22,18 @@ class ProjectService {
     fun searchRecommendedProjects(accountId: String): MutableList<Project> {
         var account = accountRepository.findById(accountId).get()
 
-        var tags = account.likes!!.map { it.tag }.distinct()
+        var tags = account.likes!!.flatMap { it.tags }.distinct()
+
+        // Get all another project which are not the same
         var allProjects = projectRepository.findAll()
         allProjects.removeAll { account.likes!!.contains(it) }
 
         var recommends = mutableListOf<Project>()
         for (it in allProjects) {
-            if (tags.contains(it.tag))
-                recommends.add(it)
+            for (el in it.tags)
+                if (tags.contains(el)) {
+                    recommends.add(it)
+                }
         }
 
         return recommends
