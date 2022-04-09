@@ -9,4 +9,5 @@ import ru.ivan.students.domian.Project
 
 @Repository
 interface CourseRepository: JpaRepository<Course, String> {
+    fun findAllByUserId(userId: String): List<Course>
 }

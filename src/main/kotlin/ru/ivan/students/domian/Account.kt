@@ -29,7 +29,10 @@ data class Account(
                 inverseJoinColumns = [JoinColumn(name = "project_id")]
         )
         @JsonProperty(access = WRITE_ONLY)
-        val likes: Set<Project>? = null
+        val likes: Set<Project>? = null,
+
+    @OneToMany
+    val courses: List<Course> = listOf()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
