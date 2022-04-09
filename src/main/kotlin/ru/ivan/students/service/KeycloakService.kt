@@ -52,6 +52,8 @@ class KeycloakService {
         newUser.email = request.email
         newUser.isEnabled = true
         newUser.realmRoles = listOf("ROLE_USER")
+        val attributes = mapOf("telegram" to listOf(request.telegram))
+        newUser.attributes = attributes
         return newUser
     }
 
