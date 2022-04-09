@@ -33,10 +33,8 @@ class AccountController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
-    @SecurityRequirement(name = "security_auth")
-    fun getMyAccount(principal: Principal): ResponseEntity<Account> {
-        return accountService.findAccountById(principal.name).map {
-            ResponseEntity.ok(it)
-        }.orElseThrow {  throw RuntimeException("not found") }
+    @SecurityRequirement(name = "apiKey")
+    fun getMyAccount(principal: Principal): ResponseEntity<String> {
+        return ResponseEntity.ok(principal.name)
     }
 }
