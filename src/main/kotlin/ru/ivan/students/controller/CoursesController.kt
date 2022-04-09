@@ -24,7 +24,7 @@ class CoursesController {
     @Operation(summary = "Добавляем курс для пользователя")
     fun addCourse(@RequestBody courseRequest: CourseRequest,
                       keycloakAuthenticationToken: KeycloakAuthenticationToken): CourseResponse {
-        val userId =  (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.id
+        val userId =  (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
         return courseService.addCourse(courseRequest, userId)
     }
 
@@ -33,7 +33,13 @@ class CoursesController {
     @SecurityRequirement(name = "apiKey")
     @Operation(summary = "Выводим все курсы пользователя")
     fun addAllCourses(keycloakAuthenticationToken: KeycloakAuthenticationToken): List<CourseResponse> {
-        val userId =  (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.id
+        val userId =  (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
         return courseService.findAllByUserId(userId)
+    }
+
+    @GetMapping("/byUserId/{id}")
+    @Operation(summary = "Выводим все курсы пользователя по его id. Не требует аутонтификации")
+    fun findAllCoursesByUserId(@PathVariable id: String): List<CourseResponse> {
+        return courseService.findAllByUserId(id)
     }
 }
