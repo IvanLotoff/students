@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository
 import ru.ivan.students.domian.Project
 
 @Repository
-interface ProjectRepository: JpaRepository<Project, String> {
+interface ProjectRepository : JpaRepository<Project, String> {
 
+    fun findByCreatorId(str: String): List<Project>
 }

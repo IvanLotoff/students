@@ -21,11 +21,16 @@ class ProjectController {
     @GetMapping("/get/id")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
-    fun getUserInfo(keycloakAuthenticationToken: KeycloakAuthenticationToken): ResponseEntity<String> {
+    fun getUserProjects(keycloakAuthenticationToken: KeycloakAuthenticationToken): List<ResponseEntity<ProjectResponse>> {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
-        return ResponseEntity.ok("ID $userId")
+        return projectService.getAllUserProjects(userId).map {
+            ResponseEntity.ok(it)
+        }
     }
+
+    @GetMapping("/all")
+    fun showAll(): List<ProjectResponse> = projectService.showAll()
 
     @PostMapping("/recommend")
     @PreAuthorize("hasRole('USER')")
@@ -35,7 +40,6 @@ class ProjectController {
     ): List<ResponseEntity<ProjectResponse>> {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
-        var res = projectService.searchRecommendedProjects(userId)
 
         return projectService.searchRecommendedProjects(userId).map {
             ResponseEntity.ok(it)
@@ -54,16 +58,29 @@ class ProjectController {
         return projectService.addProject(projectRequest, userId)
     }
 
-    @PostMapping("/delete")
+
+    @PostMapping("/like")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
-    fun deleteProject(
+    fun likeProject(
         keycloakAuthenticationToken: KeycloakAuthenticationToken,
-        @RequestBody projectRequest: ProjectRequest
+        @RequestBody idProject: String
     ): ProjectResponse {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
-        return projectService.addProject(projectRequest, userId)
+        return projectService.likeProject(idProject, userId)
     }
+
+//    @PostMapping("/delete")
+//    @PreAuthorize("hasRole('USER')")
+//    @SecurityRequirement(name = "apiKey")
+//    fun deleteProject(
+//        keycloakAuthenticationToken: KeycloakAuthenticationToken,
+//        @RequestBody id: String
+//    ): ProjectResponse {
+//        val userId =
+//            (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
+//        return projectService.addProject(projectRequest, userId)
+//    }
 
 }

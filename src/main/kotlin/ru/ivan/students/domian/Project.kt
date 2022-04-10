@@ -11,6 +11,7 @@ import javax.persistence.*
 @Entity(name = "projects")
 data class Project(
     @Id
+    @Column(name = "project_id", updatable = false)
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     val id: String? = null,
@@ -19,8 +20,12 @@ data class Project(
     val communication: String,
     var creatorId: String,
 
+    @ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @JoinColumn(name = "account_id")
+    var account: Account? = null,
+
     @OneToMany(mappedBy = "project", cascade = arrayOf(CascadeType.ALL))
-    val tags: MutableList<Tag> = mutableListOf(),
+    var tags: List<Tag> = mutableListOf(),
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -40,6 +45,7 @@ data class Project(
 
 fun Project.toResponse(): ProjectResponse {
     return ProjectResponse(
+        id = this.id!!,
         title = this.title,
         description = this.description,
         communication = this.communication,

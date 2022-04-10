@@ -21,6 +21,33 @@ class ProjectService {
         return projectRepository.save(project.toEntity(userId)).toResponse()
     }
 
+    //ToDO: Автоматом дает ввод с "" в свагере, но с ними не парсит
+    fun likeProject(idProject: String, userId: String): ProjectResponse {
+        println("\n$idProject $userId !!!!\n")
+
+        var project = projectRepository.getById(idProject)
+
+        println("\n!!!!!!!!!!!\n" + project)
+
+        project.account = accountRepository.getById(userId)
+        projectRepository.save(project)
+        return project.toResponse()
+    }
+
+    /***
+     * Logic of recommendations
+     */
+    fun getAllUserProjects(accountId: String): List<ProjectResponse> {
+        var projects = projectRepository.findByCreatorId(accountId)
+
+        var recommends = mutableListOf<ProjectResponse>()
+        for (it in projects) {
+            recommends.add(it.toResponse())
+        }
+
+        return recommends
+    }
+
     /***
      * Logic of recommendations
      */
@@ -31,7 +58,12 @@ class ProjectService {
 
         // Get all another project which are not the same
         var allProjects = projectRepository.findAll()
+        println("AllProjects\n")
+        println(allProjects)
         allProjects.removeAll { account.likes!!.contains(it) }
+
+        println("AllProjects\n")
+        println(allProjects)
 
         var recommends = mutableListOf<ProjectResponse>()
         for (it in allProjects) {
@@ -41,6 +73,17 @@ class ProjectService {
                 }
         }
 
+        println("All reccomends\n")
+        println(recommends)
         return recommends
+    }
+
+    fun showAll(): List<ProjectResponse> {
+        var allProjects = projectRepository.findAll()
+        var res = mutableListOf<ProjectResponse>()
+        for (it in allProjects) {
+            res.add(it.toResponse())
+        }
+        return res
     }
 }
