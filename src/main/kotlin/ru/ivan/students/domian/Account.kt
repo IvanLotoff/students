@@ -10,23 +10,14 @@ data class Account(
     @Id
     @Column(name = "account_id", updatable = false)
     var id: String? = null,
-    val email: String? = null,
-    val nickName: String? = null,
-    val phoneNumber: String? = null,
-    val firstName: String? = null,
-    val lastName: String? = null,
-    val surname: String? = null,
-    val status: String? = null,
-
-
 
     @Size(max = 5)
     @OneToMany(mappedBy = "account",cascade = [CascadeType.ALL])
-    val cvs: MutableList<CV> = mutableListOf(),
+    val cvs: List<CV> = mutableListOf(),
 
     @JoinColumn(name = "account_id")
     @OneToMany()
-    val likes: MutableList<Project> = mutableListOf(),
+    val likes: List<Project> = mutableListOf(),
 
     @OneToMany
     val courses: List<Course> = listOf()

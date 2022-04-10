@@ -1,9 +1,8 @@
 package ru.ivan.students.dto.response
 
 data class ProjectResponse(
-    val interests: String,
-    val tag: String,
-    val skills: String,
+    val title: String,
     val description: String,
-    val telegram: String,
+    val communication: String,
+    var creatorId: String,
 )

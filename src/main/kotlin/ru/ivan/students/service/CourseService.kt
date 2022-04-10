@@ -2,7 +2,6 @@ package ru.ivan.students.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.ivan.students.domian.Course
 import ru.ivan.students.domian.toResponse
 import ru.ivan.students.dto.request.CourseRequest
 import ru.ivan.students.dto.request.toEntity

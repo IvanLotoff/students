@@ -1,9 +1,17 @@
 package ru.ivan.students.dto.request
 
+import ru.ivan.students.domian.Project
+
 data class ProjectRequest(
-    val interests: String,
-    val tag: String,
-    val skills: String,
+    val title: String,
     val description: String,
-    val telegram: String,
+    val communication: String,
+    var creatorId: String,
+)
+
+fun ProjectRequest.toEntity(idCreator: String) = Project(
+    title = this.title,
+    description = this.description,
+    communication = this.communication,
+    creatorId = idCreator
 )

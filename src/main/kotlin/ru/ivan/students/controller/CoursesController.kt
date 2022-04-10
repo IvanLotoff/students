@@ -38,7 +38,7 @@ class CoursesController {
     }
 
     @GetMapping("/byUserId/{id}")
-    @Operation(summary = "Выводим все курсы пользователя по его id. Не требует аутонтификации")
+    @Operation(summary = "Выводим все курсы пользователя по его id. Не требует аутентификации")
     fun findAllCoursesByUserId(@PathVariable id: String): List<CourseResponse> {
         return courseService.findAllByUserId(id)
     }

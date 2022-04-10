@@ -1,12 +1,9 @@
 package ru.ivan.students.domian
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonProperty.*
-import com.fasterxml.jackson.annotation.JsonProperty.Access.*
 import org.hibernate.Hibernate
 import org.hibernate.annotations.GenericGenerator
+import ru.ivan.students.dto.response.ProjectResponse
 import javax.persistence.*
-import javax.validation.constraints.Size
 
 /**
  * TODO: наверное стоит подумать, что хранить в проекте, наверное ссылки на контакты, описание и навыки, ссылка на руководителя. Но имя и фамилия не нужны!
@@ -14,14 +11,13 @@ import javax.validation.constraints.Size
 @Entity(name = "projects")
 data class Project(
     @Id
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
     val id: String? = null,
-    val interests: String,
-
+    val title: String,
     val description: String,
-    val telegram: String,
-
+    val communication: String,
+    var creatorId: String,
 
     @OneToMany(mappedBy = "project", cascade = arrayOf(CascadeType.ALL))
     val tags: MutableList<Tag> = mutableListOf(),
@@ -40,4 +36,13 @@ data class Project(
     override fun toString(): String {
         return this::class.simpleName + "(id = $id )"
     }
+}
+
+fun Project.toResponse(): ProjectResponse {
+    return ProjectResponse(
+        title = this.title,
+        description = this.description,
+        communication = this.communication,
+        creatorId = this.creatorId,
+    )
 }

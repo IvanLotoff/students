@@ -1,7 +1,5 @@
 package ru.ivan.students.domian
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY
 import org.hibernate.Hibernate
 import org.hibernate.annotations.GenericGenerator
 import ru.ivan.students.dto.response.CourseResponse
@@ -12,15 +10,15 @@ import javax.persistence.*
 data class Course(
     @Id
     @Column(name = "course_id", updatable = false)
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
     val id: String? = null,
     val name: String,
     val spec: String,
     val seatsNumber: Int,
     val teacher: String,
     val source: String,
-    var userId: String? = null
+    var userId: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
