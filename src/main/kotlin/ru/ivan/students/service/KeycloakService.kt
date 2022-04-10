@@ -10,6 +10,7 @@ import org.keycloak.representations.idm.CredentialRepresentation
 import org.keycloak.representations.idm.UserRepresentation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import ru.ivan.students.domian.Account
 import ru.ivan.students.dto.request.RegistrationRequest
 import ru.ivan.students.dto.request.UserAuthRequest
 
@@ -18,6 +19,8 @@ import ru.ivan.students.dto.request.UserAuthRequest
 class KeycloakService {
     @Autowired
     private lateinit var keycloak: Keycloak
+    @Autowired
+    private lateinit var accountService: AccountService
 
     fun registerUser(registrationRequest: RegistrationRequest): AccessTokenResponse? {
         val password = preparePasswordRepresentation(registrationRequest.password)
@@ -33,6 +36,11 @@ class KeycloakService {
         val toRepresentation = realmResource.roles().get("ROLE_USER").toRepresentation()
 
         myUserResource?.roles()?.realmLevel()?.add(listOf(toRepresentation))
+
+        // Создаем аккаунт в нашей бд
+        // id аккаунта совпадает с id пользователя в кейклоке
+        val account = Account(id = userId)
+        accountService.createAccount(account)
 
         return Keycloak.getInstance(
             "http://localhost:8484/auth",
