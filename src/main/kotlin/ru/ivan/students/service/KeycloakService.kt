@@ -11,6 +11,7 @@ import org.keycloak.representations.idm.UserRepresentation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.ivan.students.dto.request.RegistrationRequest
+import ru.ivan.students.dto.request.UserAuthRequest
 
 
 @Service
@@ -33,12 +34,21 @@ class KeycloakService {
 
         myUserResource?.roles()?.realmLevel()?.add(listOf(toRepresentation))
 
-
         return Keycloak.getInstance(
             "http://localhost:8484/auth",
             "test_realm",
             user.username,
             registrationRequest.password,
+            "login_app"
+        ).tokenManager().accessToken
+    }
+
+    fun authUser(userAuthRequest: UserAuthRequest): AccessTokenResponse? {
+        return Keycloak.getInstance(
+            "http://localhost:8484/auth",
+            "test_realm",
+            userAuthRequest.username,
+            userAuthRequest.password,
             "login_app"
         ).tokenManager().accessToken
     }
