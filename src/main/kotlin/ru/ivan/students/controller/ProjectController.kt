@@ -1,5 +1,6 @@
 package ru.ivan.students.controller
 
+import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.keycloak.KeycloakPrincipal
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
@@ -21,6 +22,7 @@ class ProjectController {
     @GetMapping("/get/id")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Вывод всех созданных проектов пользователем по аутентификации")
     fun getUserProjects(keycloakAuthenticationToken: KeycloakAuthenticationToken): List<ResponseEntity<ProjectResponse>> {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
@@ -35,6 +37,7 @@ class ProjectController {
     @PostMapping("/recommend")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Показать рекомендованные проекты")
     fun showRecommendedProjects(
         keycloakAuthenticationToken: KeycloakAuthenticationToken,
     ): List<ResponseEntity<ProjectResponse>> {
@@ -49,6 +52,7 @@ class ProjectController {
     @PostMapping("/add")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Добавление проекта")
     fun addProject(
         keycloakAuthenticationToken: KeycloakAuthenticationToken,
         @RequestBody projectRequest: ProjectRequest
@@ -58,13 +62,23 @@ class ProjectController {
         return projectService.addProject(projectRequest, userId)
     }
 
+    @PostMapping("/search")
+    @Operation(summary = "Поиск проекта")
+    fun searchProject(
+        @RequestParam key: String
+    ): List<ResponseEntity<ProjectResponse>> {
+        return projectService.searchProject(key).map {
+            ResponseEntity.ok(it)
+        }
+    }
 
     @PostMapping("/like")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Поставить лайк на проект")
     fun likeProject(
         keycloakAuthenticationToken: KeycloakAuthenticationToken,
-        @RequestBody idProject: String
+        @PathVariable idProject: String
     ): ProjectResponse {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject

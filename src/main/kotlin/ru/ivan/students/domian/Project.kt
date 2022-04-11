@@ -18,11 +18,10 @@ data class Project(
     val title: String,
     val description: String,
     val communication: String,
-    var creatorId: String,
+    var creatorId: String? = null,
 
-    @ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-    @JoinColumn(name = "account_id")
-    var account: Account? = null,
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "likes")
+    var accounts: MutableList<Account> = mutableListOf(),
 
     @OneToMany(mappedBy = "project", cascade = arrayOf(CascadeType.ALL))
     var tags: List<Tag> = mutableListOf(),
@@ -49,6 +48,6 @@ fun Project.toResponse(): ProjectResponse {
         title = this.title,
         description = this.description,
         communication = this.communication,
-        creatorId = this.creatorId,
+        creatorId = this.creatorId!!,
     )
 }

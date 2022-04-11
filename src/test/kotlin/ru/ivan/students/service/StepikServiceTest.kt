@@ -6,7 +6,7 @@ internal class StepikServiceTest {
     var stepikService:StepikService= StepikService();
     @Test
     internal fun getTest() {
-        //println(stepikService.sendGet())
-        stepikService.sendGet()
+        println(stepikService.getAccessToken())
+        //stepikService.sendGet()
     }
 }

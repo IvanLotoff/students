@@ -12,12 +12,16 @@ data class Account(
     var id: String? = null,
 
     @Size(max = 5)
-    @OneToMany(mappedBy = "account",cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "account", cascade = [CascadeType.ALL])
     val cvs: List<CV> = mutableListOf(),
 
-    @JoinColumn(name = "account_id")
-    @OneToMany()
-    val likes: List<Project> = mutableListOf(),
+    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @JoinTable(
+        name = "accounts_projects",
+        joinColumns = [JoinColumn(name = "account_id")] ,
+        inverseJoinColumns = [JoinColumn(name = "project_id")]
+    )
+    val likes: MutableList<Project> = mutableListOf(),
 
     @OneToMany
     val courses: List<Course> = listOf()

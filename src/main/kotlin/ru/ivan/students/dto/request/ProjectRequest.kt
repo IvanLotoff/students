@@ -16,9 +16,7 @@ fun ProjectRequest.toEntity(idCreator: String): Project {
     var pr = Project(
         title = this.title,
         description = this.description,
-        communication = this.communication,
-        creatorId = idCreator
-
+        communication = this.communication
     )
 
     //pr.tags = converter.toListOfTagToRequest(pr.id!!, this.tags)
