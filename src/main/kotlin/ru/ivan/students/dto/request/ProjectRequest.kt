@@ -19,7 +19,5 @@ fun ProjectRequest.toEntity(idCreator: String): Project {
         communication = this.communication
     )
 
-    //pr.tags = converter.toListOfTagToRequest(pr.id!!, this.tags)
-
     return pr
 }

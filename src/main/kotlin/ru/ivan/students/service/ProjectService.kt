@@ -7,8 +7,10 @@ import ru.ivan.students.domian.toResponse
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.toEntity
 import ru.ivan.students.dto.response.ProjectResponse
+import ru.ivan.students.mapper.ProjectConverter
 import ru.ivan.students.repository.AccountRepository
 import ru.ivan.students.repository.ProjectRepository
+import ru.ivan.students.repository.TagRepository
 
 @Service
 class ProjectService {
@@ -18,8 +20,31 @@ class ProjectService {
     @Autowired
     private lateinit var accountRepository: AccountRepository
 
+    @Autowired
+    private lateinit var tagRepository: TagRepository
+
+    //TODO: Трабл с сохранением тэг два раза, один из тег идентичный, но без ссылки на проект
     fun addProject(project: ProjectRequest, userId: String): ProjectResponse {
-        return projectRepository.save(project.toEntity(userId)).toResponse()
+        val converter = ProjectConverter()
+        var pr = project.toEntity(userId)
+        pr.creatorId = userId
+        var save = projectRepository.save(pr)
+
+        var tags = project.tags
+
+        converter.toListOfTagToRequest(tags).forEach { value ->
+            value.project = pr
+            println("${value.name}  ${value.project}")
+            tagRepository.save(value)
+        }
+
+        if (tags.isEmpty()) {
+            return save.toResponse()
+        }
+
+        pr.tags = converter.toListOfTagToRequest(tags)
+        save = projectRepository.save(pr)
+        return save.toResponse()
     }
 
 
@@ -44,8 +69,7 @@ class ProjectService {
         return res
     }
 
-    //ToDO: Автоматом дает ввод с "" в свагере, но с ними не парсит
-    // ToDO: меняет лайкнувшего а не создает дубликат
+
     fun likeProject(idProject: String, userId: String): ProjectResponse {
         println("\n$idProject $userId !!!!\n")
 

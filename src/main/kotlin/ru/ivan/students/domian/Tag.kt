@@ -2,6 +2,8 @@ package ru.ivan.students.domian
 
 import org.hibernate.Hibernate
 import org.hibernate.annotations.GenericGenerator
+import ru.ivan.students.dto.response.ProjectResponse
+import ru.ivan.students.dto.response.TagResponse
 import javax.persistence.*
 
 @Entity
@@ -14,6 +16,8 @@ data class Tag(
     val id: String? = null,
     val name: String,
     val about: String? = null,
+
+
     @ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @JoinColumn(name = "project_id")
     var project: Project? = null
@@ -33,4 +37,12 @@ data class Tag(
     }
 
 
+}
+
+fun Tag.toResponse(): TagResponse {
+    return TagResponse(
+        id = this.id!!,
+        name = this.name,
+        about = this.about
+    )
 }
