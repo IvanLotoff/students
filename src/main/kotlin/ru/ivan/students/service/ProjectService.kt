@@ -69,14 +69,21 @@ class ProjectService {
         return res
     }
 
-
-    fun likeProject(idProject: String, userId: String): ProjectResponse {
-        println("\n$idProject $userId !!!!\n")
-
+    fun deleteLikeProject(idProject: String, userId: String): ProjectResponse {
         var project = projectRepository.getById(idProject)
         var account: Account = accountRepository.getById(userId)
 
-        println("\n!!!!!!!!!!!\n$project")
+        if (account.likes.contains(project))
+            account.likes.remove(project)
+
+        projectRepository.save(project)
+        accountRepository.save(account)
+        return project.toResponse()
+    }
+
+    fun likeProject(idProject: String, userId: String): ProjectResponse {
+        var project = projectRepository.getById(idProject)
+        var account: Account = accountRepository.getById(userId)
 
         account.likes.add(project)
         project.accounts.add(account)

@@ -72,7 +72,20 @@ class ProjectController {
         }
     }
 
-    @PostMapping("/like")
+    @PostMapping("/removeLike/{idProject}")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Поставить лайк на проект")
+    fun removeLikeOnProject(
+        keycloakAuthenticationToken: KeycloakAuthenticationToken,
+        @PathVariable idProject: String
+    ): ProjectResponse {
+        val userId =
+            (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
+        return projectService.deleteLikeProject(idProject, userId)
+    }
+
+    @PostMapping("/like/{idProject}")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
     @Operation(summary = "Поставить лайк на проект")
