@@ -1,7 +1,7 @@
 package ru.ivan.students.dto.request
 
+import ru.ivan.students.domian.Project
 import ru.ivan.students.domian.Tag
-import ru.ivan.students.mapper.ProjectConverter
 
 /** Принимает инфу от пользователя
  *
@@ -11,10 +11,14 @@ data class TagRequest(
     val about: String,
 )
 
-fun TagRequest.toEntity(): Tag {
-    val converter: ProjectConverter = ProjectConverter()
+/**
+ * Здесь пробрасывается projectProxy, эта сущность Project
+ * с лишь установленным id
+ */
+fun TagRequest.toEntity(projectProxy: Project): Tag {
     return Tag(
         name = this.name,
-        about = this.about
+        about = this.about,
+        project = projectProxy
     )
 }

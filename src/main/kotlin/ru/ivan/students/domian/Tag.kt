@@ -18,9 +18,9 @@ data class Tag(
     val about: String? = null,
 
 
-    @ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "project_id")
-    var project: Project? = null
+    val project: Project?
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

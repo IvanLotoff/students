@@ -36,6 +36,8 @@ data class Course(
 }
 
 fun Course.toResponse(): CourseResponse {
+    val mList = mutableListOf(1,2)
+    mList.toList()
     return CourseResponse(
         id = this.id,
         name = this.name,

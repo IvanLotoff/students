@@ -3,7 +3,7 @@ package ru.ivan.students.domian
 import org.hibernate.Hibernate
 import org.hibernate.annotations.GenericGenerator
 import ru.ivan.students.dto.response.ProjectResponse
-import ru.ivan.students.mapper.ProjectConverter
+import ru.ivan.students.dto.response.TagResponse
 import javax.persistence.*
 
 /**
@@ -47,13 +47,18 @@ data class Project(
 }
 
 fun Project.toResponse(): ProjectResponse {
-    var conv: ProjectConverter = ProjectConverter()
     return ProjectResponse(
         id = this.id!!,
         title = this.title,
         description = this.description,
         communication = this.communication,
         creatorId = this.creatorId!!,
-        tags = conv.toListOfTagToResponse(this.tags)
+        tags = this.toListOfTagResponse()
     )
+}
+
+fun Project.toListOfTagResponse(): List<TagResponse> {
+    return this.tags.map {
+        tag -> tag.toResponse()
+    }
 }

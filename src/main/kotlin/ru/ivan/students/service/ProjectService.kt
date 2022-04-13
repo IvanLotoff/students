@@ -7,7 +7,6 @@ import ru.ivan.students.domian.toResponse
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.toEntity
 import ru.ivan.students.dto.response.ProjectResponse
-import ru.ivan.students.mapper.ProjectConverter
 import ru.ivan.students.repository.AccountRepository
 import ru.ivan.students.repository.ProjectRepository
 import ru.ivan.students.repository.TagRepository
@@ -23,28 +22,10 @@ class ProjectService {
     @Autowired
     private lateinit var tagRepository: TagRepository
 
-    //TODO: Трабл с сохранением тэг два раза, один из тег идентичный, но без ссылки на проект
     fun addProject(project: ProjectRequest, userId: String): ProjectResponse {
-        val converter = ProjectConverter()
-        var pr = project.toEntity(userId)
-        pr.creatorId = userId
-        var save = projectRepository.save(pr)
-
-        var tags = project.tags
-
-        converter.toListOfTagToRequest(tags).forEach { value ->
-            value.project = pr
-            println("${value.name}  ${value.project}")
-            tagRepository.save(value)
-        }
-
-        if (tags.isEmpty()) {
-            return save.toResponse()
-        }
-
-        pr.tags = converter.toListOfTagToRequest(tags)
-        save = projectRepository.save(pr)
-        return save.toResponse()
+        return projectRepository.save(
+            project.toEntity(userId)
+        ).toResponse()
     }
 
     //TODO: ДОписать после фикса Вани взаимодействие с тегами,:  Если список не пустой, то заменяем им старый
