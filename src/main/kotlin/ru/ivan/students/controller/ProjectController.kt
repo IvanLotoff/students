@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.keycloak.KeycloakPrincipal
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
@@ -19,11 +20,11 @@ class ProjectController {
     @Autowired
     private lateinit var projectService: ProjectService
 
-    @GetMapping("/get/id")
+    @GetMapping("/getCreated")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
     @Operation(summary = "Вывод всех созданных проектов пользователем по аутентификации")
-    fun getUserProjects(keycloakAuthenticationToken: KeycloakAuthenticationToken): List<ResponseEntity<ProjectResponse>> {
+    fun getCreatedProjects(keycloakAuthenticationToken: KeycloakAuthenticationToken): List<ResponseEntity<ProjectResponse>> {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
         return projectService.getAllUserProjects(userId).map {
@@ -31,7 +32,16 @@ class ProjectController {
         }
     }
 
+    @GetMapping("/getCreated/{idUser}")
+    @Operation(summary = "Вывод всех созданных проектов пользователем по id")
+    fun getCreatedProjectsByID(@PathVariable idUser: String): List<ResponseEntity<ProjectResponse>> {
+        return projectService.getAllUserProjects(idUser).map {
+            ResponseEntity.ok(it)
+        }
+    }
+
     @GetMapping("/all")
+    @Operation(summary = "Вывод всех созданных проектов пользователями")
     fun showAll(): List<ProjectResponse> = projectService.showAll()
 
     @PostMapping("/recommend")
@@ -49,6 +59,21 @@ class ProjectController {
         }
     }
 
+    @PostMapping("/getLiked")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Показать лайкнутые пользователем проекты")
+    fun showLikedProjects(
+        keycloakAuthenticationToken: KeycloakAuthenticationToken,
+    ): List<ResponseEntity<ProjectResponse>> {
+        val userId =
+            (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
+
+        return projectService.getAllLikedProjects(userId).map {
+            ResponseEntity.ok(it)
+        }
+    }
+
     @PostMapping("/add")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
@@ -62,8 +87,22 @@ class ProjectController {
         return projectService.addProject(projectRequest, userId)
     }
 
+    @PostMapping("/updateProject")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Обновить проект по id")
+    fun updateProject(
+        keycloakAuthenticationToken: KeycloakAuthenticationToken,
+        @RequestBody projectRequest: ProjectRequest,
+        @RequestParam idProject: String
+    ): ProjectResponse {
+        val userId =
+            (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
+        return projectService.updateProject(projectRequest, userId, idProject)
+    }
+
     @PostMapping("/search")
-    @Operation(summary = "Поиск проекта")
+    @Operation(summary = "Поиск проекта по вводимому текствому значению")
     fun searchProject(
         @RequestParam key: String
     ): List<ResponseEntity<ProjectResponse>> {
@@ -95,8 +134,43 @@ class ProjectController {
     ): ProjectResponse {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
+
         return projectService.likeProject(idProject, userId)
     }
+
+    @PostMapping("/view/{idProject}")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Оставь в истории просмотр на проекте")
+    fun viewHistoryProject(
+        keycloakAuthenticationToken: KeycloakAuthenticationToken,
+        @PathVariable idProject: String
+    ): ProjectResponse {
+        val userId =
+            (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
+
+        return projectService.viewProject(idProject, userId)
+    }
+
+    @PostMapping("/showViews")
+    @Operation(summary = "Показать количество просмотров проекта")
+    fun getViewsCount(
+        @RequestParam idProject: String
+    ): ResponseEntity<String> {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body("View count is " + projectService.getProjectViewsCount(idProject));
+    }
+
+
+    @PostMapping("/showLikes")
+    @Operation(summary = "Показать количество лайков проекта")
+    fun getLikesCount(
+        @RequestParam idProject: String
+    ): ResponseEntity<String> {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body("Like count is " + projectService.getProjectLikesCount(idProject));
+    }
+
 
 //    @PostMapping("/delete")
 //    @PreAuthorize("hasRole('USER')")

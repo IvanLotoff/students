@@ -16,13 +16,16 @@ data class Project(
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     val id: String? = null,
-    val title: String,
-    val description: String,
-    val communication: String,
+    var title: String,
+    var description: String,
+    var communication: String,
     var creatorId: String? = null,
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "likes")
     var accounts: MutableList<Account> = mutableListOf(),
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "views")
+    var accountsView: MutableList<Account> = mutableListOf(),
 
     @OneToMany(mappedBy = "project", cascade = arrayOf(CascadeType.ALL))
     var tags: List<Tag> = mutableListOf(),

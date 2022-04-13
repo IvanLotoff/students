@@ -10,7 +10,7 @@ import javax.persistence.*
 @Table(name = "tags")
 data class Tag(
     @Id
-    @Column(name = "skill_id", updatable = false)
+    @Column(name = "tag_id", updatable = false)
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     val id: String? = null,

@@ -17,11 +17,20 @@ data class Account(
 
     @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @JoinTable(
-        name = "accounts_projects",
-        joinColumns = [JoinColumn(name = "account_id")] ,
+        name = "accounts_projects_likes",
+        joinColumns = [JoinColumn(name = "account_id")],
         inverseJoinColumns = [JoinColumn(name = "project_id")]
     )
     val likes: MutableList<Project> = mutableListOf(),
+
+
+    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @JoinTable(
+        name = "accounts_projects_views",
+        joinColumns = [JoinColumn(name = "account_id")],
+        inverseJoinColumns = [JoinColumn(name = "project_id")]
+    )
+    val views: MutableList<Project> = mutableListOf(),
 
     @OneToMany
     val courses: List<Course> = listOf()

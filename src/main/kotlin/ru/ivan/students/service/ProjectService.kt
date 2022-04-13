@@ -47,6 +47,24 @@ class ProjectService {
         return save.toResponse()
     }
 
+    //TODO: ДОписать после фикса Вани взаимодействие с тегами,:  Если список не пустой, то заменяем им старый
+    fun updateProject(project: ProjectRequest, userId: String, projectId: String): ProjectResponse {
+        var oldProject = projectRepository.getById(projectId)
+
+        if (!oldProject.creatorId.equals(userId))
+            return oldProject.toResponse()
+
+        var pr = project.toEntity(userId)
+
+        oldProject.tags = pr.tags
+        oldProject.title = pr.title
+        oldProject.description = pr.description
+        oldProject.communication = pr.communication
+
+
+        return projectRepository.save(oldProject).toResponse()
+    }
+
 
     /***
      * Logic of search
@@ -85,6 +103,13 @@ class ProjectService {
         var project = projectRepository.getById(idProject)
         var account: Account = accountRepository.getById(userId)
 
+
+        var createdProjects = projectRepository.findByCreatorId(userId)
+
+        // TODO: Что возвращать если не проходит проверку в сервисе, экспешн?
+        if (createdProjects.contains(project))
+            return project.toResponse()
+
         account.likes.add(project)
         project.accounts.add(account)
         projectRepository.save(project)
@@ -93,15 +118,27 @@ class ProjectService {
     }
 
 
+    fun getAllLikedProjects(accountId: String): List<ProjectResponse> {
+        var account = accountRepository.getById(accountId)
+        var likedProjects = account.likes;
+
+        var res = mutableListOf<ProjectResponse>()
+        for (it in likedProjects) {
+            res.add(it.toResponse())
+        }
+
+        return res
+    }
+
     fun getAllUserProjects(accountId: String): List<ProjectResponse> {
         var projects = projectRepository.findByCreatorId(accountId)
 
-        var recommends = mutableListOf<ProjectResponse>()
+        var res = mutableListOf<ProjectResponse>()
         for (it in projects) {
-            recommends.add(it.toResponse())
+            res.add(it.toResponse())
         }
 
-        return recommends
+        return res
     }
 
     /***
@@ -114,12 +151,8 @@ class ProjectService {
 
         // Get all another project which are not the same
         var allProjects = projectRepository.findAll()
-        println("AllProjects\n")
-        println(allProjects)
         allProjects.removeAll { account.likes!!.contains(it) }
 
-        println("AllProjects\n")
-        println(allProjects)
 
         var recommends = mutableListOf<ProjectResponse>()
         for (it in allProjects) {
@@ -128,9 +161,6 @@ class ProjectService {
                     recommends.add(it.toResponse())
                 }
         }
-
-        println("All reccomends\n")
-        println(recommends)
         return recommends
     }
 
@@ -142,4 +172,34 @@ class ProjectService {
         }
         return res
     }
+
+    fun getProjectLikesCount(idProject: String): Int {
+        var project = projectRepository.getById(idProject)
+        return project.accounts.count()
+    }
+
+    fun getProjectViewsCount(idProject: String): Int {
+        var project = projectRepository.getById(idProject)
+        return project.accountsView.count()
+    }
+
+
+    fun viewProject(idProject: String, userId: String): ProjectResponse {
+        var project = projectRepository.getById(idProject)
+        var account: Account = accountRepository.getById(userId)
+
+
+        var createdProjects = projectRepository.findByCreatorId(userId)
+
+        // TODO: Что возвращать если не проходит проверку в сервисе, экспешн?
+        if (createdProjects.contains(project))
+            return project.toResponse()
+
+        account.views.add(project)
+        project.accountsView.add(account)
+        projectRepository.save(project)
+        accountRepository.save(account)
+        return project.toResponse()
+    }
+
 }
