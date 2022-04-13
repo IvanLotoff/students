@@ -11,8 +11,9 @@ data class ProjectRequest(
     val tags: List<TagRequest>
 )
 
-fun ProjectRequest.toEntity(idCreator: String): Project {
+fun ProjectRequest.toEntity(idCreator: String, projectId: String? = null): Project {
     val project = Project(
+        id = projectId,
         title = this.title,
         description = this.description,
         communication = this.communication,

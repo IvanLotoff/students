@@ -28,22 +28,13 @@ class ProjectService {
         ).toResponse()
     }
 
-    //TODO: ДОписать после фикса Вани взаимодействие с тегами,:  Если список не пустой, то заменяем им старый
     fun updateProject(project: ProjectRequest, userId: String, projectId: String): ProjectResponse {
-        var oldProject = projectRepository.getById(projectId)
-
-        if (!oldProject.creatorId.equals(userId))
-            return oldProject.toResponse()
-
-        var pr = project.toEntity(userId)
-
-        oldProject.tags = pr.tags
-        oldProject.title = pr.title
-        oldProject.description = pr.description
-        oldProject.communication = pr.communication
-
-
-        return projectRepository.save(oldProject).toResponse()
+        // https://stackoverflow.com/questions/11881479/how-do-i-update-an-entity-using-spring-data-jpa
+        // Здесь хитрая штука: метод save смотрит на id сущности, если его нет, то он создает сущность,
+        // а если он есть, то апдейтит сущность
+        return projectRepository.save(
+            project.toEntity(userId, projectId)
+        ).toResponse()
     }
 
 
