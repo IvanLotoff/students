@@ -3,6 +3,7 @@ package ru.ivan.students.service
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import ru.ivan.students.domian.Account
+import ru.ivan.students.domian.Project
 import ru.ivan.students.domian.toResponse
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.toEntity
@@ -10,6 +11,7 @@ import ru.ivan.students.dto.response.ProjectResponse
 import ru.ivan.students.repository.AccountRepository
 import ru.ivan.students.repository.ProjectRepository
 import ru.ivan.students.repository.TagRepository
+import java.util.*
 
 @Service
 class ProjectService {
@@ -136,18 +138,33 @@ class ProjectService {
         return recommends
     }
 
-    fun showAll(): List<ProjectResponse> {
-        var allProjects = projectRepository.findAll()
-        var res = mutableListOf<ProjectResponse>()
-        for (it in allProjects) {
-            res.add(it.toResponse())
+//    fun showAll(): List<ProjectResponse> {
+//        var allProjects = projectRepository.findAll()
+//        var res = mutableListOf<ProjectResponse>()
+//        for (it in allProjects) {
+//            res.add(it.toResponse())
+//        }
+//        return res
+//        return projectRepository.findAll()
+//                .map {
+//                        project -> project.toResponse()
+//                }
+//    }
+    fun showAll() = projectRepository.findAll()
+        .map {
+             project -> project.toResponse()
         }
-        return res
-    }
+
+
 
     fun getProjectLikesCount(idProject: String): Int {
-        var project = projectRepository.getById(idProject)
-        return project.accounts.count()
+        // getById не обращается к базе, а создает прокси объект,
+        // то есть пустой объект, у которого заполнено только id, которое ты передал
+        // метод findById обращается к базе
+        // todo: оптимизировать для хибернейта, не выгружать все аккаунты, если нам нужно лишь их кол-во
+        return projectRepository.findById(idProject).orElseThrow {
+            RuntimeException("getProjectLikesCount failed. No project found with id $idProject")
+        }.accounts.count()
     }
 
     fun getProjectViewsCount(idProject: String): Int {
