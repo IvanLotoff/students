@@ -23,16 +23,8 @@ fun ProjectRequest.toEntity(idCreator: String, projectId: String? = null): Proje
     return project
 }
 
-fun TagRequest.toTagEntity(projectProxy: Project): Tag {
-    return Tag(
-        name = this.name,
-        about = this.about,
-        project = projectProxy
-    )
-}
-
 fun List<TagRequest>.toTagEntityList(projectProxy: Project): List<Tag> {
     return this.map {
-        tagRequest -> tagRequest.toTagEntity(projectProxy)
+        tagRequest -> tagRequest.toEntity(projectProxy)
     }
 }

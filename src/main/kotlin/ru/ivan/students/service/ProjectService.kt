@@ -21,9 +21,6 @@ class ProjectService {
     @Autowired
     private lateinit var accountRepository: AccountRepository
 
-    @Autowired
-    private lateinit var tagRepository: TagRepository
-
     fun addProject(project: ProjectRequest, userId: String): ProjectResponse {
         return projectRepository.save(
             project.toEntity(userId)
@@ -80,9 +77,8 @@ class ProjectService {
 
         var createdProjects = projectRepository.findByCreatorId(userId)
 
-        // TODO: Что возвращать если не проходит проверку в сервисе, экспешн?
         if (createdProjects.contains(project))
-            return project.toResponse()
+            throw RuntimeException("User $userId can't like his created projected $idProject")
 
         account.likes.add(project)
         project.accounts.add(account)
@@ -119,7 +115,9 @@ class ProjectService {
      * Logic of recommendations
      */
     fun searchRecommendedProjects(accountId: String): List<ProjectResponse> {
-        var account = accountRepository.findById(accountId).get()
+        var account = accountRepository.findById(accountId).orElseThrow {
+            RuntimeException("Account with id $accountId does not exist")
+        }
 
         var tags = account.likes!!.flatMap { it.tags }.map { it.name }.distinct()
 
@@ -138,7 +136,7 @@ class ProjectService {
         return recommends
     }
 
-//    fun showAll(): List<ProjectResponse> {
+    //    fun showAll(): List<ProjectResponse> {
 //        var allProjects = projectRepository.findAll()
 //        var res = mutableListOf<ProjectResponse>()
 //        for (it in allProjects) {
@@ -150,11 +148,11 @@ class ProjectService {
 //                        project -> project.toResponse()
 //                }
 //    }
-    fun showAll() = projectRepository.findAll()
-        .map {
-             project -> project.toResponse()
-        }
 
+    fun showAll() = projectRepository.findAll()
+        .map { project ->
+            project.toResponse()
+        }
 
 
     fun getProjectLikesCount(idProject: String): Int {
@@ -168,21 +166,15 @@ class ProjectService {
     }
 
     fun getProjectViewsCount(idProject: String): Int {
-        var project = projectRepository.getById(idProject)
-        return project.accountsView.count()
+        return projectRepository.findById(idProject).orElseThrow {
+            RuntimeException("getProjectViewsCount failed. No project found with id $idProject")
+        }.accountsView.count()
     }
 
 
     fun viewProject(idProject: String, userId: String): ProjectResponse {
         var project = projectRepository.getById(idProject)
         var account: Account = accountRepository.getById(userId)
-
-
-        var createdProjects = projectRepository.findByCreatorId(userId)
-
-        // TODO: Что возвращать если не проходит проверку в сервисе, экспешн?
-        if (createdProjects.contains(project))
-            return project.toResponse()
 
         account.views.add(project)
         project.accountsView.add(account)

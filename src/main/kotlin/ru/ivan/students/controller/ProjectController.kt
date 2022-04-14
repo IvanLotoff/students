@@ -157,8 +157,17 @@ class ProjectController {
     fun getViewsCount(
         @RequestParam idProject: String
     ): ResponseEntity<String> {
+
+        val res: Int
+        try {
+            res = projectService.getProjectViewsCount(idProject)
+        } catch (exception: Exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(exception.message);
+        }
+
         return ResponseEntity.status(HttpStatus.OK)
-            .body("View count is " + projectService.getProjectViewsCount(idProject));
+            .body("View count is $res");
     }
 
 
@@ -167,8 +176,17 @@ class ProjectController {
     fun getLikesCount(
         @RequestParam idProject: String
     ): ResponseEntity<String> {
+
+        val res: Int
+        try {
+            res = projectService.getProjectLikesCount(idProject)
+        } catch (exception: Exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(exception.message);
+        }
+
         return ResponseEntity.status(HttpStatus.OK)
-            .body("Like count is " + projectService.getProjectLikesCount(idProject));
+            .body("Like count is $res");
     }
 
 
