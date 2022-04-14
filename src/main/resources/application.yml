@@ -18,6 +18,9 @@ keycloak:
   resource: login_app
   public-client: true
   bearer-only: true
+  # SSL is required to authenticate. Remote address 109.252.186.130 is secure: false, SSL required for: EXTERNAL .
+  # https://stackoverflow.com/questions/57594946/spring-boot-unable-to-get-response-of-keycloak-authorized-api-via-zuul-proxy
+  ssl-required: none
 
 springdoc:
   version: '@springdoc.version@'
