@@ -59,7 +59,9 @@ class ProjectService {
     }
 
     fun deleteLikeProject(idProject: String, userId: String): ProjectResponse {
-        var project = projectRepository.getById(idProject)
+        var project = projectRepository.findById(idProject).orElseThrow {
+            RuntimeException("No such project $idProject")
+        }
         var account: Account = accountRepository.getById(userId)
 
         if (account.likes.contains(project))
@@ -71,7 +73,10 @@ class ProjectService {
     }
 
     fun likeProject(idProject: String, userId: String): ProjectResponse {
-        var project = projectRepository.getById(idProject)
+        var project = projectRepository.findById(idProject).orElseThrow {
+            RuntimeException("No such project $idProject")
+        }
+
         var account: Account = accountRepository.getById(userId)
 
 
@@ -173,7 +178,9 @@ class ProjectService {
 
 
     fun viewProject(idProject: String, userId: String): ProjectResponse {
-        var project = projectRepository.getById(idProject)
+        var project = projectRepository.findById(idProject).orElseThrow {
+            RuntimeException("No such project $idProject")
+        }
         var account: Account = accountRepository.getById(userId)
 
         account.views.add(project)
