@@ -125,7 +125,7 @@ class ProjectService {
             RuntimeException("Account with id $accountId does not exist")
         }
 
-        var tags = account.likes!!.flatMap { it.tags }.map { it.name }.distinct()
+        var tags = account.likes.flatMap { it.tags }.map { it.name }.distinct()
 
         // Get all another project which are not the same
         var allProjects = projectRepository.findAll()

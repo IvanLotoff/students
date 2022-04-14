@@ -189,6 +189,15 @@ class ProjectController {
             .body("Like count is $res");
     }
 
+    @GetMapping("/sortBy")
+    @Operation(summary = "Сортировка проекта по столбцу")
+    fun sortProjectsBy(
+        @RequestParam(defaultValue = "0") pageNo: Int,
+        @RequestParam(defaultValue = "10") pageSize: Int,
+        @RequestParam(defaultValue = "id") sortBy: String
+    ): ResponseEntity<List<ProjectResponse>> {
+        return ResponseEntity.ok(projectService.getSortedByNameProjects(pageNo, pageSize, sortBy))
+    }
 
 //    @PostMapping("/delete")
 //    @PreAuthorize("hasRole('USER')")
