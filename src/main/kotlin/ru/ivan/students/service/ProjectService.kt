@@ -12,6 +12,7 @@ import ru.ivan.students.dto.request.toEntity
 import ru.ivan.students.dto.response.ProjectResponse
 import ru.ivan.students.repository.AccountRepository
 import ru.ivan.students.repository.ProjectRepository
+import ru.ivan.students.repository.TagRepository
 
 
 @Service
@@ -22,6 +23,9 @@ class ProjectService {
     @Autowired
     private lateinit var accountRepository: AccountRepository
 
+    @Autowired
+    private lateinit var tagRepository: TagRepository
+
     fun addProject(project: ProjectRequest, userId: String): ProjectResponse {
         return projectRepository.save(
             project.toEntity(userId)
@@ -29,6 +33,13 @@ class ProjectService {
     }
 
     fun updateProject(project: ProjectRequest, userId: String, projectId: String): ProjectResponse {
+        //Сброс тегов
+        val oldProject = projectRepository.findById(projectId).orElseThrow {
+            RuntimeException("No such project $projectId")
+        }
+        oldProject.tags.forEach { tag -> tag.id?.let { tagRepository.deleteById(it) } }
+
+
         // https://stackoverflow.com/questions/11881479/how-do-i-update-an-entity-using-spring-data-jpa
         // Здесь хитрая штука: метод save смотрит на id сущности, если его нет, то он создает сущность,
         // а если он есть, то апдейтит сущность

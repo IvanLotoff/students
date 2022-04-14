@@ -7,7 +7,6 @@ data class ProjectRequest(
     val title: String,
     val description: String,
     val communication: String,
-    var creatorId: String,
     val tags: List<TagRequest>
 )
 
