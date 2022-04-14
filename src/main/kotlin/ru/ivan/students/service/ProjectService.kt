@@ -1,17 +1,18 @@
 package ru.ivan.students.service
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import ru.ivan.students.domian.Account
-import ru.ivan.students.domian.Project
 import ru.ivan.students.domian.toResponse
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.toEntity
 import ru.ivan.students.dto.response.ProjectResponse
 import ru.ivan.students.repository.AccountRepository
 import ru.ivan.students.repository.ProjectRepository
-import ru.ivan.students.repository.TagRepository
-import java.util.*
+
 
 @Service
 class ProjectService {
@@ -181,13 +182,31 @@ class ProjectService {
         var project = projectRepository.findById(idProject).orElseThrow {
             RuntimeException("No such project $idProject")
         }
-        var account: Account = accountRepository.getById(userId)
+
+
+        var account: Account = accountRepository.findById(userId).orElseThrow {
+            RuntimeException("No such user $userId")
+        }
+
+        if (project.accountsView.contains(account))
+            throw RuntimeException("User $userId already viewed project $idProject")
 
         account.views.add(project)
         project.accountsView.add(account)
         projectRepository.save(project)
         accountRepository.save(account)
         return project.toResponse()
+    }
+
+    fun getSortedByNameProjects(pageNumber: Int, pageSize: Int, sortBy: String): List<ProjectResponse> {
+        val pageable: Pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, sortBy))
+        var pageRes = projectRepository.findAll(pageable)
+
+        return if (pageRes.hasContent()) {
+            pageRes.getContent().map { pr -> pr.toResponse() }
+        } else {
+            return ArrayList()
+        }
     }
 
 }
