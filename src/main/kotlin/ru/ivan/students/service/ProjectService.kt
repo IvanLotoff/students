@@ -57,7 +57,7 @@ class ProjectService {
             RuntimeException("No such project $projectId")
         }
 
-        //TODO:проект меняет id при удалении старый тегов
+        //TODO:проект меняет id при удалении старых тегов
         val tags = oldProject.tags.toMutableList()
         tags.forEach { tag -> oldProject.tags.remove(tag) }
         projectRepository.save(oldProject)
