@@ -10,6 +10,7 @@ import org.keycloak.representations.idm.CredentialRepresentation
 import org.keycloak.representations.idm.UserRepresentation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import ru.ivan.students.annotation.ForStartupOnly
 import ru.ivan.students.domian.Account
 import ru.ivan.students.dto.request.RegistrationRequest
 import ru.ivan.students.dto.request.UserAuthRequest
@@ -59,6 +60,41 @@ class KeycloakService {
             userAuthRequest.password,
             "login_app"
         ).tokenManager().accessToken
+    }
+
+    @ForStartupOnly
+    fun removeAllUsers() {
+        val userResource: UsersResource? = keycloak.realm("test_realm").users()
+        val ids = userResource?.list()?.map {
+                userRepresentation -> userRepresentation.id
+        }
+        ids?.forEach {
+            userResource.get(it)?.remove()
+        }
+    }
+
+    @ForStartupOnly
+    fun createTwoMockUsers() {
+        val user1: RegistrationRequest = RegistrationRequest(
+            email = "user1",
+            nickname = "user1",
+            phoneNumber = "user1",
+            firstName = "user1",
+            lastName = "user1",
+            telegram = "user1",
+            password = "user1"
+        )
+        val user2: RegistrationRequest = RegistrationRequest(
+            email = "user2",
+            nickname = "user2",
+            phoneNumber = "user2",
+            firstName = "user2",
+            lastName = "user2",
+            telegram = "user2",
+            password = "user2"
+        )
+        registerUser(user1)
+        registerUser(user2)
     }
 
     private fun prepareUserRepresentation(request: RegistrationRequest,
