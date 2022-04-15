@@ -57,9 +57,11 @@ class ProjectService {
             RuntimeException("No such project $projectId")
         }
 
-        //TODO:проект меняет id при удалении старых тегов
         val tags = oldProject.tags.toMutableList()
-        tags.forEach { tag -> oldProject.tags.remove(tag) }
+        tags.forEach { tag ->
+            oldProject.tags.remove(tag)
+            tag.project = null
+        }
         projectRepository.save(oldProject)
 
         // https://stackoverflow.com/questions/11881479/how-do-i-update-an-entity-using-spring-data-jpa
