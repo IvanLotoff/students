@@ -1,5 +1,6 @@
 package ru.ivan.students.controller
 
+import com.google.gson.JsonObject
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.keycloak.KeycloakPrincipal
@@ -171,8 +172,11 @@ class ProjectController {
                 .body(exception.message);
         }
 
+        var json = JsonObject()
+        json.addProperty("int", res)
+
         return ResponseEntity.status(HttpStatus.OK)
-            .body("View count is $res");
+            .body(json.toString());
     }
 
 
@@ -190,8 +194,10 @@ class ProjectController {
                 .body(exception.message);
         }
 
+        var json = JsonObject()
+        json.addProperty("int", res)
         return ResponseEntity.status(HttpStatus.OK)
-            .body("Like count is $res");
+            .body(json.toString());
     }
 
     @GetMapping("/sortBy")
