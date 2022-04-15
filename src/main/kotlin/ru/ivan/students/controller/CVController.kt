@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import ru.ivan.students.dto.request.CVRequest
 import ru.ivan.students.dto.response.CVResponse
+import ru.ivan.students.dto.response.ProjectResponse
 import ru.ivan.students.service.CVService
 
 @RestController
@@ -48,6 +49,12 @@ class CVController {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
         return ResponseEntity.ok(cvService.updateCV(CVRequest, userId, idCV))
+    }
+
+    @GetMapping("/getCV/{idUser}")
+    @Operation(summary = "Вывод всех созданных резюме пользователем по id")
+    fun getCreatedProjectsByID(@PathVariable idUser: String): ResponseEntity<List<CVResponse>> {
+        return ResponseEntity.ok(cvService.getAllCvFromAccount(idUser))
     }
 
 
