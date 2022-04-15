@@ -1,6 +1,7 @@
 package ru.ivan.students.dto.response
 
 data class CVResponse(
+    val id: String,
     val nameCV: String,
     val aboutInfo: String,
     val school: String,
@@ -10,5 +11,5 @@ data class CVResponse(
     val language: String,
     val workSchedule: String,
     val skill: String,
-    val busyness : String,
+    val busyness: String,
 )

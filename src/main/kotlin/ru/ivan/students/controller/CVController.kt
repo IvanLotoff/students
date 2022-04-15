@@ -1,5 +1,6 @@
 package ru.ivan.students.controller
 
+import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.keycloak.KeycloakPrincipal
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
@@ -18,16 +19,36 @@ class CVController {
     private lateinit var cvService: CVService
 
     @GetMapping("/all")
+    @Operation(summary = "Вывод всех резюме")
     fun showAll(): List<CVResponse> = cvService.showAll()
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Добавление резюме")
     fun addCV(
         keycloakAuthenticationToken: KeycloakAuthenticationToken,
         @RequestBody CVRequest: CVRequest
     ): ResponseEntity<CVResponse> {
-        val userId =  (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
+        val userId =
+            (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
         return ResponseEntity.ok(cvService.saveCV(CVRequest, userId))
     }
+
+
+    @PostMapping("/update")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Обновление резюме")
+    fun updateCV(
+        keycloakAuthenticationToken: KeycloakAuthenticationToken,
+        @RequestBody CVRequest: CVRequest,
+        @RequestParam idCV: String
+    ): ResponseEntity<CVResponse> {
+        val userId =
+            (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
+        return ResponseEntity.ok(cvService.updateCV(CVRequest, userId, idCV))
+    }
+
+
 }

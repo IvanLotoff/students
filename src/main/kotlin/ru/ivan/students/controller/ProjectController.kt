@@ -24,20 +24,16 @@ class ProjectController {
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
     @Operation(summary = "Вывод всех созданных проектов пользователем по аутентификации")
-    fun getCreatedProjects(keycloakAuthenticationToken: KeycloakAuthenticationToken): List<ResponseEntity<ProjectResponse>> {
+    fun getCreatedProjects(keycloakAuthenticationToken: KeycloakAuthenticationToken): ResponseEntity<List<ProjectResponse>> {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
-        return projectService.getAllUserProjects(userId).map {
-            ResponseEntity.ok(it)
-        }
+        return ResponseEntity.ok(projectService.getAllUserProjects(userId))
     }
 
     @GetMapping("/getCreated/{idUser}")
     @Operation(summary = "Вывод всех созданных проектов пользователем по id")
-    fun getCreatedProjectsByID(@PathVariable idUser: String): List<ResponseEntity<ProjectResponse>> {
-        return projectService.getAllUserProjects(idUser).map {
-            ResponseEntity.ok(it)
-        }
+    fun getCreatedProjectsByID(@PathVariable idUser: String): ResponseEntity<List<ProjectResponse>> {
+        return ResponseEntity.ok(projectService.getAllUserProjects(idUser))
     }
 
     @GetMapping("/all")
@@ -50,13 +46,11 @@ class ProjectController {
     @Operation(summary = "Показать рекомендованные проекты")
     fun showRecommendedProjects(
         keycloakAuthenticationToken: KeycloakAuthenticationToken,
-    ): List<ResponseEntity<ProjectResponse>> {
+    ): ResponseEntity<List<ProjectResponse>> {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
 
-        return projectService.searchRecommendedProjects(userId).map {
-            ResponseEntity.ok(it)
-        }
+        return ResponseEntity.ok(projectService.searchRecommendedProjects(userId))
     }
 
     @PostMapping("/getLiked")
@@ -65,13 +59,11 @@ class ProjectController {
     @Operation(summary = "Показать лайкнутые пользователем проекты")
     fun showLikedProjects(
         keycloakAuthenticationToken: KeycloakAuthenticationToken,
-    ): List<ResponseEntity<ProjectResponse>> {
+    ): ResponseEntity<List<ProjectResponse>> {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
 
-        return projectService.getAllLikedProjects(userId).map {
-            ResponseEntity.ok(it)
-        }
+        return ResponseEntity.ok(projectService.getAllLikedProjects(userId))
     }
 
     @PostMapping("/add")
@@ -105,10 +97,8 @@ class ProjectController {
     @Operation(summary = "Поиск проекта по вводимому текствому значению")
     fun searchProject(
         @RequestParam key: String
-    ): List<ResponseEntity<ProjectResponse>> {
-        return projectService.searchProject(key).map {
-            ResponseEntity.ok(it)
-        }
+    ): ResponseEntity<List<ProjectResponse>> {
+        return ResponseEntity.ok(projectService.searchProject(key))
     }
 
     @PostMapping("/removeLike/{idProject}")
