@@ -122,8 +122,8 @@ class ProjectService {
 
         var createdProjects = projectRepository.findByCreatorId(userId)
 
-        if (createdProjects.contains(project))
-            throw RuntimeException("User $userId can't like his created projected $idProject")
+        if (createdProjects.contains(project) && account.likes.contains(project))
+            throw RuntimeException("User $userId can't like his created or liked projected $idProject")
 
         account.likes.add(project)
         project.accounts.add(account)
@@ -173,10 +173,12 @@ class ProjectService {
 
         var recommends = mutableListOf<ProjectResponse>()
         for (it in allProjects) {
-            for (el in it.tags)
-                if (tags.contains(el.name)) {
-                    recommends.add(it.toResponse())
-                }
+            if (it.creatorId != accountId) {
+                for (el in it.tags)
+                    if (tags.contains(el.name)) {
+                        recommends.add(it.toResponse())
+                    }
+            }
         }
         return recommends
     }
