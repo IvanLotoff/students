@@ -37,5 +37,12 @@ class CVService {
         ).toResponse()
     }
 
+    fun getAllCvFromAccount(accountId: String): List<CVResponse> {
+        var account = accountRepository.findById(accountId).orElseThrow {
+            throw RuntimeException("Can't find user $accountId")
+        }
+        return account.cvs.map { cv -> cv.toResponse() };
+    }
+
     fun showAll() = converter.toListOfCVResponse(cvRepository.findAll())
 }

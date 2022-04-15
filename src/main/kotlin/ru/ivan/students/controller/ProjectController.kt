@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import ru.ivan.students.dto.request.ProjectRequest
+import ru.ivan.students.dto.request.TagRequest
 import ru.ivan.students.dto.response.ProjectResponse
 import ru.ivan.students.service.ProjectService
 
@@ -77,6 +78,20 @@ class ProjectController {
         val userId =
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
         return projectService.addProject(projectRequest, userId)
+    }
+
+    @PostMapping("/addTag")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Добавление в проект тегов")
+    fun addTagsToProject(
+        keycloakAuthenticationToken: KeycloakAuthenticationToken,
+        @RequestBody tags: List<TagRequest>,
+        @RequestParam idProject: String
+    ): ProjectResponse {
+        val userId =
+            (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
+        return projectService.addTagListToProject(tags, idProject, userId)
     }
 
     @PostMapping("/updateProject")

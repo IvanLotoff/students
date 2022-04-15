@@ -2,6 +2,8 @@ package ru.ivan.students.domian
 
 import org.hibernate.Hibernate
 import org.hibernate.annotations.GenericGenerator
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import ru.ivan.students.dto.response.ProjectResponse
 import ru.ivan.students.dto.response.TagResponse
 import javax.persistence.*
@@ -20,6 +22,7 @@ data class Tag(
 
     @ManyToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "project_id")
+    //@OnDelete(action = OnDeleteAction.CASCADE)
     val project: Project?
 ) {
     override fun equals(other: Any?): Boolean {

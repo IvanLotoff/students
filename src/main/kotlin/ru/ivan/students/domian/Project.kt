@@ -27,8 +27,8 @@ data class Project(
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "views")
     var accountsView: MutableList<Account> = mutableListOf(),
 
-    @OneToMany(mappedBy = "project", cascade = arrayOf(CascadeType.ALL))
-    var tags: List<Tag> = mutableListOf(),
+    @OneToMany(orphanRemoval = true, mappedBy = "project", cascade = arrayOf(CascadeType.ALL))
+    var tags: MutableList<Tag> = mutableListOf(),
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -58,7 +58,7 @@ fun Project.toResponse(): ProjectResponse {
 }
 
 fun Project.toListOfTagResponse(): List<TagResponse> {
-    return this.tags.map {
-        tag -> tag.toResponse()
+    return this.tags.map { tag ->
+        tag.toResponse()
     }
 }

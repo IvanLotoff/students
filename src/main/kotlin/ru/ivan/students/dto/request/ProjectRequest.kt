@@ -7,7 +7,7 @@ data class ProjectRequest(
     val title: String,
     val description: String,
     val communication: String,
-    val tags: List<TagRequest>
+    val tags: MutableList<TagRequest>
 )
 
 fun ProjectRequest.toEntity(idCreator: String, projectId: String? = null): Project {
@@ -18,7 +18,7 @@ fun ProjectRequest.toEntity(idCreator: String, projectId: String? = null): Proje
         communication = this.communication,
         creatorId = idCreator
     )
-    project.tags = this.tags.toTagEntityList(project)
+    project.tags = this.tags.toTagEntityList(project) as MutableList<Tag>
     return project
 }
 

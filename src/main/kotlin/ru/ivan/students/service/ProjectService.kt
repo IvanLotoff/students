@@ -6,9 +6,12 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import ru.ivan.students.domian.Account
+import ru.ivan.students.domian.Tag
 import ru.ivan.students.domian.toResponse
 import ru.ivan.students.dto.request.ProjectRequest
+import ru.ivan.students.dto.request.TagRequest
 import ru.ivan.students.dto.request.toEntity
+import ru.ivan.students.dto.request.toTagEntityList
 import ru.ivan.students.dto.response.ProjectResponse
 import ru.ivan.students.repository.AccountRepository
 import ru.ivan.students.repository.ProjectRepository
@@ -32,13 +35,32 @@ class ProjectService {
         ).toResponse()
     }
 
+    fun addTagListToProject(tags: List<TagRequest>, projectId: String, userId: String): ProjectResponse {
+        var project = projectRepository.findById(projectId).orElseThrow {
+            RuntimeException("No such project $projectId")
+        }
+
+        project.tags = tags.toTagEntityList(project) as MutableList<Tag>
+
+        projectRepository.save(
+            project
+        )
+
+        return projectRepository.findById(projectId).orElseThrow {
+            RuntimeException("No such project $projectId")
+        }.toResponse()
+    }
+
     fun updateProject(project: ProjectRequest, userId: String, projectId: String): ProjectResponse {
         //Сброс тегов
         val oldProject = projectRepository.findById(projectId).orElseThrow {
             RuntimeException("No such project $projectId")
         }
-        oldProject.tags.forEach { tag -> tag.id?.let { tagRepository.deleteById(it) } }
 
+        //TODO:проект меняет тег при удалении старый тегов
+        val tags = oldProject.tags.toMutableList()
+        tags.forEach { tag -> oldProject.tags.remove(tag) }
+        projectRepository.save(oldProject)
 
         // https://stackoverflow.com/questions/11881479/how-do-i-update-an-entity-using-spring-data-jpa
         // Здесь хитрая штука: метод save смотрит на id сущности, если его нет, то он создает сущность,
@@ -52,18 +74,22 @@ class ProjectService {
     /***
      * Logic of search
      */
-    fun searchProject(key: String): List<ProjectResponse> {
+    fun searchProject(searchValue: String): List<ProjectResponse> {
         var allProjects = projectRepository.findAll()
 
         var res = mutableListOf<ProjectResponse>()
-        for (it in allProjects) {
+        var keys = searchValue.split(" ", ",")
 
-            if (it.description.contains(key)
-                || it.title.contains(key)
-                || it.tags.map { it.name }.distinct().contains(key)
-                || it.tags.map { it.about }.distinct().contains(key)
-            ) {
-                res.add(it.toResponse())
+        for (key in keys) {
+            for (it in allProjects) {
+
+                if (it.description.contains(key)
+                    || it.title.contains(key)
+                    || it.tags.map { it.name }.distinct().contains(key)
+                    || it.tags.map { it.about }.distinct().contains(key)
+                ) {
+                    res.add(it.toResponse())
+                }
             }
         }
 
