@@ -11,6 +11,7 @@
 	<groupId>ru.ivan</groupId>
 	<artifactId>students</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+
 	<name>students</name>
 	<description>Demo project for Spring Boot</description>
 
@@ -67,7 +68,14 @@
 			<artifactId>keycloak-spring-boot-starter</artifactId>
 			<version>17.0.0</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-admin-client</artifactId>

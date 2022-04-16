@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${SERVER_PORT:8080}
 spring:
   application.name: ${APPLICATION_NAME:spring-security-keycloak}
   datasource:
@@ -31,3 +31,12 @@ springdoc:
 oAuthFlow:
   authorizationUrl: ${OAUTH2_SERVER:http://localhost:8084}/auth/realms/test_realm/protocol/openid-connect/auth
   tokenUrl: ${OAUTH2_SERVER:http://localhost:8084}/auth/realms/test_realm/protocol/openid-connect/token
+
+management:
+  endpoints:
+    prometheus:
+      enabled: true
+
+    web:
+      exposure:
+        include: prometheus,info,health
