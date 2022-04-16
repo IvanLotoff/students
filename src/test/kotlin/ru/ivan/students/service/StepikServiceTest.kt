@@ -12,7 +12,7 @@ internal class StepikServiceTest {
     internal fun getTest() {
         //println(stepikService.getAccessToken())
         //println(stepikService.getCourse())
-        println(stepikService.getCourses())
+        println(stepikService.getCourses(1))
         //stepikService.sendGet()
     }
 }

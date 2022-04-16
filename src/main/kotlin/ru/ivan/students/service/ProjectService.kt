@@ -102,7 +102,9 @@ class ProjectService {
         var project = projectRepository.findById(idProject).orElseThrow {
             RuntimeException("No such project $idProject")
         }
-        var account: Account = accountRepository.getById(userId)
+        var account: Account = accountRepository.findById(userId).orElseThrow {
+            RuntimeException("No such user $userId")
+        }
 
         if (account.likes.contains(project))
             account.likes.remove(project)
@@ -117,7 +119,9 @@ class ProjectService {
             RuntimeException("No such project $idProject")
         }
 
-        var account: Account = accountRepository.getById(userId)
+        var account: Account = accountRepository.findById(userId).orElseThrow {
+            RuntimeException("No such user $userId")
+        }
 
 
         var createdProjects = projectRepository.findByCreatorId(userId)
@@ -134,7 +138,9 @@ class ProjectService {
 
 
     fun getAllLikedProjects(accountId: String): List<ProjectResponse> {
-        var account = accountRepository.getById(accountId)
+        var account = accountRepository.findById(accountId).orElseThrow {
+            RuntimeException("No such user $accountId")
+        }
         var likedProjects = account.likes;
 
         var res = mutableListOf<ProjectResponse>()
@@ -250,4 +256,7 @@ class ProjectService {
         }
     }
 
+    fun getSortedByLikes(): List<String> {
+        return projectRepository.orderByLikes() as List<String>
+    }
 }

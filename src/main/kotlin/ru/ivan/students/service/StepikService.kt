@@ -64,10 +64,10 @@ class StepikService {
     }
 
 
-    fun getCourses() {
+    fun getCourses(repeatTimes: Int) {
         var treeNode: MutableList<String> = mutableListOf()
         var number = 0
-        repeat(20) {
+        repeat(repeatTimes) {
             number++
             val url =
                 URL("https://stepik.org/api/courses?page=$number&page_size=100&is_popular=true&is_paid=false&with_certificate=true")
