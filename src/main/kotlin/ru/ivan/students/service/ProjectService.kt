@@ -241,10 +241,10 @@ class ProjectService {
 
     fun getSortedByNameProjects(pageNumber: Int, pageSize: Int, sortBy: String): List<ProjectResponse> {
         val pageable: Pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, sortBy))
-        var pageRes = projectRepository.findAll(pageable)
+        val pageRes = projectRepository.findAll(pageable)
 
         return if (pageRes.hasContent()) {
-            pageRes.getContent().map { pr -> pr.toResponse() }
+            pageRes.content.map { pr -> pr.toResponse() }
         } else {
             return ArrayList()
         }
