@@ -2,6 +2,7 @@ package ru.ivan.students.domian
 
 import org.hibernate.Hibernate
 import org.hibernate.annotations.GenericGenerator
+import org.hibernate.annotations.Type
 import ru.ivan.students.dto.response.ProjectResponse
 import ru.ivan.students.dto.response.TagResponse
 import javax.persistence.*
@@ -17,7 +18,7 @@ data class Project(
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     val id: String? = null,
     var title: String,
-    @Lob
+    @Lob @Type(type = "org.hibernate.type.TextType")
     var description: String,
     var communication: String,
     var creatorId: String? = null,

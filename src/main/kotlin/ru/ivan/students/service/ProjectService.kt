@@ -16,6 +16,7 @@ import ru.ivan.students.dto.response.ProjectResponse
 import ru.ivan.students.repository.AccountRepository
 import ru.ivan.students.repository.ProjectRepository
 import ru.ivan.students.repository.TagRepository
+import javax.transaction.Transactional
 
 
 @Service
@@ -114,6 +115,7 @@ class ProjectService {
         return project.toResponse()
     }
 
+    @Transactional
     fun likeProject(idProject: String, userId: String): ProjectResponse {
         var project = projectRepository.findById(idProject).orElseThrow {
             RuntimeException("No such project $idProject")
@@ -257,6 +259,9 @@ class ProjectService {
     }
 
     fun getSortedByLikes(): List<String> {
-        return projectRepository.orderByLikes() as List<String>
+        return projectRepository.orderByLikes()
+//            .map { it ->
+//                ObjectMapper().readValue(it, Project::class.java)
+//            }
     }
 }

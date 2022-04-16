@@ -2,6 +2,7 @@ package ru.ivan.students.domian
 
 import org.hibernate.Hibernate
 import org.hibernate.annotations.GenericGenerator
+import org.hibernate.annotations.Type
 import ru.ivan.students.dto.response.CVResponse
 import javax.persistence.*
 
@@ -15,6 +16,7 @@ data class CV(
     val id: String? = null,
     val nameCV: String,
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     val aboutInfo: String,
     val school: String,
     val university: String,

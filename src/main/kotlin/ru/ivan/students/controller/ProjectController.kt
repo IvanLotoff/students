@@ -210,6 +210,12 @@ class ProjectController {
         return ResponseEntity.ok(projectService.getSortedByNameProjects(pageNo, pageSize, sortBy))
     }
 
+    @GetMapping("/sortByLikes")
+    @Operation(summary = "Сортировка проекта по количеству лайков")
+    fun sortProjectsByLikes(): ResponseEntity<List<String>> {
+        return ResponseEntity.ok(projectService.getSortedByLikes())
+    }
+
 //    @PostMapping("/delete")
 //    @PreAuthorize("hasRole('USER')")
 //    @SecurityRequirement(name = "apiKey")
