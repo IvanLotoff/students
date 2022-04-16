@@ -20,4 +20,6 @@ class CourseService {
     fun findAllByUserId(userId: String): List<CourseResponse> {
         return courseRepository.findAllByUserId(userId).map { course -> course.toResponse() }
     }
+
+    fun showAll() = courseRepository.findAll().map { it -> it.toResponse() }
 }

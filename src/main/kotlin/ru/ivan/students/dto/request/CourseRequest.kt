@@ -5,18 +5,14 @@ import ru.ivan.students.service.CourseService
 
 data class CourseRequest(
     val name: String,
-    val spec: String,
-    val seatsNumber: Int,
-    val teacher: String,
+    val about: String,
     val source: String,
 )
 
-fun CourseRequest.toEntity(userId: String): Course {
+fun CourseRequest.toEntity(userId: String?): Course {
     return Course(
         name = this.name,
-        spec = this.spec,
-        seatsNumber = this.seatsNumber,
-        teacher = this.teacher,
+        about = this.about,
         source = this.source,
         userId = userId
     )

@@ -20,7 +20,7 @@ class KeycloakController {
     private lateinit var keycloakService: KeycloakService
 
     @PostMapping("/register")
-    @Operation(summary = "Регистриция нового пользователя")
+    @Operation(summary = "Регистрация нового пользователя")
     fun register(
         @RequestBody registrationRequest: RegistrationRequest
     ): String? {

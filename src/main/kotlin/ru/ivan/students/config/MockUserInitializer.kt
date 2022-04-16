@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import ru.ivan.students.dto.request.RegistrationRequest
 import ru.ivan.students.service.KeycloakService
+import ru.ivan.students.service.StepikService
 
 /**
  * Класс для очистки пользователей и создания двух новых
@@ -13,15 +14,20 @@ import ru.ivan.students.service.KeycloakService
  */
 @Profile("initMockUsers")
 @Component
-class MockUserInitializer: CommandLineRunner {
+class MockUserInitializer : CommandLineRunner {
     @Autowired
     private lateinit var keycloakService: KeycloakService
+
+    @Autowired
+    private lateinit var stepikService: StepikService
 
     override fun run(vararg args: String?) {
         keycloakService.removeAllUsers()
         println("all users are removed")
         createMockUsers()
         println("user1-user1 and user2-user2 are created")
+        stepikService.getCourses()
+        println("courses from Stepik loaded")
     }
 
     private fun createMockUsers() {

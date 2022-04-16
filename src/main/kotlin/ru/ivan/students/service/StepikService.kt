@@ -1,14 +1,24 @@
 package ru.ivan.students.service
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+import ru.ivan.students.domian.Course
+import ru.ivan.students.repository.CourseRepository
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
-
+@Service
 class StepikService {
 
-    fun getAccessToken() {
+    @Autowired
+    private lateinit var courseRepository: CourseRepository;
+
+    fun getAccessToken(): String {
         val url = URL("https://stepik.org/oauth2/token/")
         val http = url.openConnection() as HttpURLConnection
         http.requestMethod = "POST"
@@ -24,7 +34,7 @@ class StepikService {
         http.outputStream.write(data.toByteArray(Charsets.UTF_8))
 
 
-        println(http.responseCode.toString() + " " + http.responseMessage)
+        //println(http.responseCode.toString() + " " + http.responseMessage)
 
         val sb = StringBuilder()
         val br = BufferedReader(
@@ -40,47 +50,84 @@ class StepikService {
             )
         }
         br.close()
-        System.out.println("" + sb.toString())
-
         http.disconnect()
 
+        System.out.println("" + sb.toString())
 
+        val node = ObjectMapper().readValue(sb.toString(), ObjectNode::class.java)
+
+        if (node.has("access_token")) {
+            return node.get("access_token").toString().replace("\"", "")
+        }
+
+        throw RuntimeException("No token")
     }
 
-//    fun sendGet(): String {
-//
-////        var doc: Document? = null
-////        try {
-////            doc = Jsoup.connect(url).get()
-////        } catch (e: IOException) {
-////            e.printStackTrace()
-////        }
-////        val title = doc!!.title()
-////        println(doc.text().split("—").first())
-//
-//
-//        val httpClient: HttpURLConnection = URL(url).openConnection() as HttpURLConnection
-//        httpClient.requestMethod = "GET"
-//        httpClient.setRequestProperty("User-Agent", "Mozilla/5.0")
-//        var res: String
-//        BufferedReader(InputStreamReader(httpClient.getInputStream())).use { `in` ->
-//            val response = StringBuilder()
-//            var line: String?
-//            while (`in`.readLine().also { line = it } != null) response.append(line).append("\n")
-//            res = response.toString()
-//        }
-//
-//        //a#member 66.ember-view.link-secondndary. link_no-static-line
-//        var html: Document = Jsoup.parse(res)
-//
-//
-//        return html.text()
-//    }
-//
-////    fun sendGet(): String {
-////        val html: Document = Jsoup.connect(url).get()
-////        var res1= html.select("#ember56").first();
-////        return ""
-////    }
+
+    fun getCourses() {
+        var treeNode: MutableList<String> = mutableListOf()
+        var number = 0
+        repeat(20) {
+            number++
+            val url =
+                URL("https://stepik.org/api/courses?page=$number&page_size=100&is_popular=true&is_paid=false&with_certificate=true")
+            val http = url.openConnection() as HttpURLConnection
+            http.requestMethod = "GET"
+            http.doOutput = true
+            http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+            http.setRequestProperty(
+                "Authorization",
+                "Bearer " + getAccessToken()
+            )
+
+
+            http.responseCode.toString() + " " + http.responseMessage
+
+            val sb = StringBuilder()
+            val br = BufferedReader(
+                InputStreamReader(http.getInputStream(), "utf-8")
+            )
+            var line: String? = null
+            while (br.readLine().also { line = it } != null) {
+                sb.append(
+                    """
+            $line
+            
+            """.trimIndent()
+                )
+            }
+            br.close()
+
+            http.disconnect()
+
+            val node = ObjectMapper().readValue(sb.toString(), ObjectNode::class.java)
+            if (node.has("courses")) {
+                ObjectMapper().readTree(node.get("courses").toString()).map(JsonNode::toString).forEach {
+                    var lower = it.lowercase()
+                    if (
+                    //it.contains("sql") &&
+                        !lower.contains("школ")
+                        && !lower.contains("огэ")
+                        && !lower.contains("егэ")
+                        && !lower.contains("лицей")
+                    )
+                        treeNode.add(it)
+                }
+            }
+        }
+
+        treeNode.forEach {
+            println(it)
+            val node = ObjectMapper().readValue(it, ObjectNode::class.java)
+            var id = node.get("id").toString()
+            var course: Course = Course(
+                name = node.get("title").toString(),
+                about = node.get("summary").toString(),
+                source = "https://stepik.org/course/$id/promo"
+            )
+            courseRepository.save(course)
+        }
+
+    }
 }
 

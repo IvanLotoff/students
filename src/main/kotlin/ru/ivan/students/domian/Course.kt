@@ -14,9 +14,8 @@ data class Course(
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     val id: String? = null,
     val name: String,
-    val spec: String,
-    val seatsNumber: Int,
-    val teacher: String,
+    @Lob
+    val about: String,
     val source: String,
     var userId: String? = null,
 ) {
@@ -36,14 +35,10 @@ data class Course(
 }
 
 fun Course.toResponse(): CourseResponse {
-    val mList = mutableListOf(1,2)
-    mList.toList()
     return CourseResponse(
         id = this.id,
         name = this.name,
-        spec = this.spec,
-        seatsNumber = this.seatsNumber,
-        teacher = this.teacher,
+        about = this.about,
         source = this.source
     )
 }

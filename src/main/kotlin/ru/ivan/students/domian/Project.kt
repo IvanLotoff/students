@@ -17,6 +17,7 @@ data class Project(
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     val id: String? = null,
     var title: String,
+    @Lob
     var description: String,
     var communication: String,
     var creatorId: String? = null,

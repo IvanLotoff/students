@@ -14,6 +14,7 @@ data class CV(
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     val id: String? = null,
     val nameCV: String,
+    @Lob
     val aboutInfo: String,
     val school: String,
     val university: String,
