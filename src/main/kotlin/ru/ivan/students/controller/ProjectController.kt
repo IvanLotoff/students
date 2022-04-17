@@ -10,10 +10,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import ru.ivan.students.domian.Project
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.TagRequest
 import ru.ivan.students.dto.response.ProjectResponse
+import ru.ivan.students.dto.response.UserResponse
 import ru.ivan.students.service.ProjectService
 
 @RestController
@@ -54,6 +54,19 @@ class ProjectController {
             (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
 
         return ResponseEntity.ok(projectService.searchRecommendedProjects(userId))
+    }
+    @PostMapping("/getWhoLiked")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "apiKey")
+    @Operation(summary = "Показать аккаунты, которые лайкали проект")
+    fun showWhoLikedProjects(
+        keycloakAuthenticationToken: KeycloakAuthenticationToken,
+        @RequestParam idProject: String
+    ): ResponseEntity<List<UserResponse>> {
+        val userId =
+            (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
+
+        return ResponseEntity.ok(projectService.getAllAccountWhoLikedProject(userId, idProject))
     }
 
     @PostMapping("/getLiked")
@@ -213,7 +226,7 @@ class ProjectController {
 
     @GetMapping("/sortByLikes")
     @Operation(summary = "Сортировка проекта по количеству лайков")
-    fun sortProjectsByLikes(): ResponseEntity<Collection<Project>> {
+    fun sortProjectsByLikes(): ResponseEntity<List<ProjectResponse>> {
         return ResponseEntity.ok(projectService.getSortedByLikes())
     }
 

@@ -5,18 +5,16 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
-import ru.ivan.students.domian.Account
-import ru.ivan.students.domian.Project
-import ru.ivan.students.domian.Tag
-import ru.ivan.students.domian.toResponse
+import ru.ivan.students.domian.*
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.TagRequest
 import ru.ivan.students.dto.request.toEntity
 import ru.ivan.students.dto.request.toTagEntityList
 import ru.ivan.students.dto.response.ProjectResponse
+import ru.ivan.students.dto.response.UserResponse
 import ru.ivan.students.repository.AccountRepository
+import ru.ivan.students.repository.ProjectAccountRepository
 import ru.ivan.students.repository.ProjectRepository
-import ru.ivan.students.repository.TagRepository
 import javax.transaction.Transactional
 
 
@@ -29,7 +27,11 @@ class ProjectService {
     private lateinit var accountRepository: AccountRepository
 
     @Autowired
-    private lateinit var tagRepository: TagRepository
+    private lateinit var keycloakService: KeycloakService
+
+
+    @Autowired
+    private lateinit var projectAccountRepository: ProjectAccountRepository
 
     fun addProject(project: ProjectRequest, userId: String): ProjectResponse {
         return projectRepository.save(
@@ -38,7 +40,7 @@ class ProjectService {
     }
 
     fun addTagListToProject(tags: List<TagRequest>, projectId: String, userId: String): ProjectResponse {
-        var project = projectRepository.findById(projectId).orElseThrow {
+        val project = projectRepository.findById(projectId).orElseThrow {
             RuntimeException("No such project $projectId")
         }
 
@@ -57,6 +59,10 @@ class ProjectService {
         //Сброс тегов
         val oldProject = projectRepository.findById(projectId).orElseThrow {
             RuntimeException("No such project $projectId")
+        }
+
+        if (oldProject.creatorId != userId) {
+            throw RuntimeException("User $userId has no rights to change another $projectId")
         }
 
         val tags = oldProject.tags.toMutableList()
@@ -79,10 +85,10 @@ class ProjectService {
      * Logic of search
      */
     fun searchProject(searchValue: String): List<ProjectResponse> {
-        var allProjects = projectRepository.findAll()
+        val allProjects = projectRepository.findAll()
 
-        var res = mutableListOf<ProjectResponse>()
-        var keys = searchValue.split(" ", ",")
+        val res = mutableListOf<ProjectResponse>()
+        val keys = searchValue.split(" ", ",")
 
         for (key in keys) {
             for (it in allProjects) {
@@ -101,15 +107,21 @@ class ProjectService {
     }
 
     fun deleteLikeProject(idProject: String, userId: String): ProjectResponse {
-        var project = projectRepository.findById(idProject).orElseThrow {
+        val project = projectRepository.findById(idProject).orElseThrow {
             RuntimeException("No such project $idProject")
         }
-        var account: Account = accountRepository.findById(userId).orElseThrow {
+        val account: Account = accountRepository.findById(userId).orElseThrow {
             RuntimeException("No such user $userId")
         }
 
-        if (account.likes.contains(project))
-            account.likes.remove(project)
+        var likes = account.likes
+        (likes.forEach {
+            if (it.project == project && it.account == account) {
+                account.likes.remove(it)
+                project.accounts.remove(it)
+            }
+        })
+
 
         projectRepository.save(project)
         accountRepository.save(account)
@@ -118,46 +130,69 @@ class ProjectService {
 
     @Transactional
     fun likeProject(idProject: String, userId: String): ProjectResponse {
-        var project = projectRepository.findById(idProject).orElseThrow {
+        val project = projectRepository.findById(idProject).orElseThrow {
             RuntimeException("No such project $idProject")
         }
 
-        var account: Account = accountRepository.findById(userId).orElseThrow {
+        val account: Account = accountRepository.findById(userId).orElseThrow {
             RuntimeException("No such user $userId")
         }
 
 
-        var createdProjects = projectRepository.findByCreatorId(userId)
+        val createdProjects = projectRepository.findByCreatorId(userId)
 
-        if (createdProjects.contains(project) && account.likes.contains(project))
+        if (createdProjects.contains(project) && account.likes.firstOrNull { it.project.id == project.id && it.account.id == account.id } != null)
             throw RuntimeException("User $userId can't like his created or liked projected $idProject")
 
-        account.likes.add(project)
-        project.accounts.add(account)
+
+        var projectAccount: ProjectAccount = ProjectAccount(
+            ProjectAccountId(account.id!!, project.id!!), project, account
+        )
+
+
+        projectAccountRepository.save(projectAccount)
+        account.likes.add(projectAccount)
+        project.accounts.add(projectAccount)
         projectRepository.save(project)
         accountRepository.save(account)
         return project.toResponse()
     }
 
+    fun getAllAccountWhoLikedProject(userId: String, idProject: String): List<UserResponse> {
+        val project = projectRepository.findById(idProject).orElseThrow {
+            RuntimeException("getProjectViewsCount failed. No project found with id $idProject")
+        }
+
+        if (project.creatorId != userId) {
+            throw RuntimeException("User $userId has no rights to check who liked another $project")
+        }
+
+        return project.accounts.map { it -> keycloakService.getuserInfoById(it.account.id!!) }
+    }
 
     fun getAllLikedProjects(accountId: String): List<ProjectResponse> {
-        var account = accountRepository.findById(accountId).orElseThrow {
+
+        val account = accountRepository.findById(accountId).orElseThrow {
             RuntimeException("No such user $accountId")
         }
-        var likedProjects = account.likes;
 
-        var res = mutableListOf<ProjectResponse>()
+        val likedProjects = account.likes
+
+        println(account)
+        println(likedProjects)
+
+        val res = mutableListOf<ProjectResponse>()
         for (it in likedProjects) {
-            res.add(it.toResponse())
+            res.add(it.project.toResponse())
         }
 
         return res
     }
 
     fun getAllUserProjects(accountId: String): List<ProjectResponse> {
-        var projects = projectRepository.findByCreatorId(accountId)
+        val projects = projectRepository.findByCreatorId(accountId)
 
-        var res = mutableListOf<ProjectResponse>()
+        val res = mutableListOf<ProjectResponse>()
         for (it in projects) {
             res.add(it.toResponse())
         }
@@ -169,18 +204,18 @@ class ProjectService {
      * Logic of recommendations
      */
     fun searchRecommendedProjects(accountId: String): List<ProjectResponse> {
-        var account = accountRepository.findById(accountId).orElseThrow {
+        val account = accountRepository.findById(accountId).orElseThrow {
             RuntimeException("Account with id $accountId does not exist")
         }
 
-        var tags = account.likes.flatMap { it.tags }.map { it.name }.distinct()
+        val tags = account.likes.map { it.project }.flatMap { it.tags }.map { it.name }.distinct()
 
         // Get all another project which are not the same
-        var allProjects = projectRepository.findAll()
-        allProjects.removeAll { account.likes!!.contains(it) }
+        val allProjects = projectRepository.findAll()
+        allProjects.removeAll { account.likes.map { it.project }.contains(it) }
 
 
-        var recommends = mutableListOf<ProjectResponse>()
+        val recommends = mutableListOf<ProjectResponse>()
         for (it in allProjects) {
             if (it.creatorId != accountId) {
                 for (el in it.tags)
@@ -229,12 +264,12 @@ class ProjectService {
 
 
     fun viewProject(idProject: String, userId: String): ProjectResponse {
-        var project = projectRepository.findById(idProject).orElseThrow {
+        val project = projectRepository.findById(idProject).orElseThrow {
             RuntimeException("No such project $idProject")
         }
 
 
-        var account: Account = accountRepository.findById(userId).orElseThrow {
+        val account: Account = accountRepository.findById(userId).orElseThrow {
             RuntimeException("No such user $userId")
         }
 
@@ -259,10 +294,22 @@ class ProjectService {
         }
     }
 
-    fun getSortedByLikes(): Collection<Project> {
-        return projectRepository.orderByLikes()
-//            .map { it ->
-//                ObjectMapper().readValue(it, Project::class.java)
-//            }
+    fun getSortedByLikes(): List<ProjectResponse> {
+        val projectIds = projectRepository.orderIdsByLikes()
+        val projectsResponse = mutableListOf<ProjectResponse>()
+        for (id in projectIds) {
+            val project = projectRepository.findById(id).orElseThrow {
+                RuntimeException("No such project $id")
+            }
+            projectsResponse.add(project.toResponse())
+        }
+
+        return projectsResponse
+
+        //Аналогичный способ достать сразу коллекцию стрингов-проектов, но тогда нужно кастить
+        //return projectRepository.orderByLikes()
+        //            .map { it ->
+        //                ObjectMapper().readValue(it, Project::class.java)
+        //            }
     }
 }

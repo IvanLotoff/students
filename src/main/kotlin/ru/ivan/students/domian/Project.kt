@@ -7,9 +7,6 @@ import ru.ivan.students.dto.response.ProjectResponse
 import ru.ivan.students.dto.response.TagResponse
 import javax.persistence.*
 
-/**
- * TODO: наверное стоит подумать, что хранить в проекте, наверное ссылки на контакты, описание и навыки, ссылка на руководителя. Но имя и фамилия не нужны!
- */
 @Entity(name = "projects")
 data class Project(
     @Id
@@ -23,8 +20,8 @@ data class Project(
     var communication: String,
     var creatorId: String? = null,
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "likes")
-    var accounts: MutableList<Account> = mutableListOf(),
+    @OneToMany(orphanRemoval = true, mappedBy = "account", cascade = arrayOf(CascadeType.ALL))
+    var accounts: MutableList<ProjectAccount> = mutableListOf(),
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "views")
     var accountsView: MutableList<Account> = mutableListOf(),

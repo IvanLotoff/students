@@ -12,12 +12,14 @@ import org.springframework.stereotype.Service
 import ru.ivan.students.domian.Account
 import ru.ivan.students.dto.request.RegistrationRequest
 import ru.ivan.students.dto.request.UserAuthRequest
+import ru.ivan.students.dto.response.UserResponse
 
 
 @Service
 class KeycloakService {
     @Autowired
     private lateinit var keycloak: Keycloak
+
     @Autowired
     private lateinit var accountService: AccountService
 
@@ -62,16 +64,18 @@ class KeycloakService {
 
     fun removeAllUsers() {
         val userResource: UsersResource? = keycloak.realm("test_realm").users()
-        val ids = userResource?.list()?.map {
-                userRepresentation -> userRepresentation.id
+        val ids = userResource?.list()?.map { userRepresentation ->
+            userRepresentation.id
         }
         ids?.forEach {
             userResource.get(it)?.remove()
         }
     }
 
-    private fun prepareUserRepresentation(request: RegistrationRequest,
-                                          cR: CredentialRepresentation): UserRepresentation {
+    private fun prepareUserRepresentation(
+        request: RegistrationRequest,
+        cR: CredentialRepresentation
+    ): UserRepresentation {
         val newUser = UserRepresentation()
         newUser.username = request.nickname
         newUser.firstName = request.firstName
@@ -90,5 +94,17 @@ class KeycloakService {
         cR.type = CredentialRepresentation.PASSWORD
         cR.value = password
         return cR
+    }
+
+   fun getuserInfoById(userId: String): UserResponse {
+        val user1: UserResponse = UserResponse(
+            email = "user1",
+            nickname = "user1",
+            phoneNumber = "user1",
+            firstName = "user1",
+            lastName = "user1",
+            telegram = "user1",
+        )
+        return user1
     }
 }

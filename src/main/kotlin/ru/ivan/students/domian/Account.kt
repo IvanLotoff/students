@@ -15,13 +15,8 @@ data class Account(
     @OneToMany(mappedBy = "account", cascade = [CascadeType.ALL])
     val cvs: List<CV> = mutableListOf(),
 
-    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-    @JoinTable(
-        name = "accounts_projects_likes",
-        joinColumns = [JoinColumn(name = "account_id")],
-        inverseJoinColumns = [JoinColumn(name = "project_id")]
-    )
-    val likes: MutableList<Project> = mutableListOf(),
+    @OneToMany(mappedBy = "project")
+    val likes: MutableList<ProjectAccount> = mutableListOf(),
 
 
     @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
