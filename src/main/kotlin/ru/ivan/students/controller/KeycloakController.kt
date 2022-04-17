@@ -1,7 +1,6 @@
 package ru.ivan.students.controller
 
 import io.swagger.v3.oas.annotations.Operation
-import org.keycloak.representations.AccessTokenResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -11,7 +10,6 @@ import ru.ivan.students.dto.request.RegistrationRequest
 import ru.ivan.students.dto.request.UserAuthRequest
 import ru.ivan.students.service.KeycloakService
 import ru.ivan.students.util.toJson
-import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping("/auth")
@@ -24,7 +22,7 @@ class KeycloakController {
     fun register(
         @RequestBody registrationRequest: RegistrationRequest
     ): String? {
-        return keycloakService.registerUser(registrationRequest)?.toJson()
+        return keycloakService.registerUserAndGetToken(registrationRequest)?.toJson()
     }
 
     @PostMapping("/authUser")

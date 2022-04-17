@@ -5,12 +5,13 @@ import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import ru.ivan.students.domian.Project
+import java.util.*
 
 @Repository
 interface ProjectRepository : PagingAndSortingRepository<Project, String> {
     //
 //    override fun findAll(pageable: Pageable): Page<Project>
-    fun findByCreatorId(str: String): List<Project>
+    fun findByCreatorIdAndDeletionDateNull(str: String): List<Project>
 
     @Transactional
     @Query(
@@ -18,4 +19,8 @@ interface ProjectRepository : PagingAndSortingRepository<Project, String> {
         nativeQuery = true
     )
     fun orderByLikes(): Collection<Project>
+
+    fun findByIdAndDeletionDateNull(id: String): Optional<Project>
+
+    fun findAllByDeletionDateNull(): List<Project>
 }

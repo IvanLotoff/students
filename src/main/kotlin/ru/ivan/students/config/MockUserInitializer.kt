@@ -76,19 +76,12 @@ class MockUserInitializer : CommandLineRunner {
         password = "user4"
     )
 
-    private fun registerAndGetID(user: RegistrationRequest): String {
-        val chunks: List<String> = keycloakService.registerUser(user)?.token!!.split(".")
-        val decoder: Base64.Decoder = Base64.getUrlDecoder()
-        val payload = String(decoder.decode(chunks[1]))
-        return ObjectMapper().readValue(payload, ObjectNode::class.java).get("sub").toString().replace("\"", "")
-    }
-
     private fun createMockUsers(): List<String> {
         val listId = mutableListOf<String>()
-        listId.add(registerAndGetID(user1))
-        listId.add(registerAndGetID(user2))
-        listId.add(registerAndGetID(user3))
-        listId.add(registerAndGetID(user4))
+        listId.add(keycloakService.registerUserAndGetUserId(user1)!!)
+        listId.add(keycloakService.registerUserAndGetUserId(user2)!!)
+        listId.add(keycloakService.registerUserAndGetUserId(user3)!!)
+        listId.add(keycloakService.registerUserAndGetUserId(user4)!!)
 
         println(listId)
         return listId
@@ -111,4 +104,12 @@ class MockUserInitializer : CommandLineRunner {
 
         projectService.likeProject(projectId[3], ids[0])
     }
+
+    //    private fun registerAndGetID(user: RegistrationRequest): String {
+//        val chunks: List<String> = keycloakService.registerUserAndGetToken(user)?.token!!.split(".")
+//        val decoder: Base64.Decoder = Base64.getUrlDecoder()
+//        val payload = String(decoder.decode(chunks[1]))
+//        return ObjectMapper().readValue(payload, ObjectNode::class.java).get("sub").toString().replace("\"", "")
+//    }
+
 }

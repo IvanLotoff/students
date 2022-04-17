@@ -5,6 +5,7 @@ import org.hibernate.annotations.GenericGenerator
 import org.hibernate.annotations.Type
 import ru.ivan.students.dto.response.ProjectResponse
 import ru.ivan.students.dto.response.TagResponse
+import java.time.LocalDate
 import javax.persistence.*
 
 /**
@@ -31,6 +32,8 @@ data class Project(
 
     @OneToMany(orphanRemoval = true, mappedBy = "project", cascade = arrayOf(CascadeType.ALL))
     var tags: MutableList<Tag> = mutableListOf(),
+
+    var deletionDate: LocalDate? = null
 ) {
 
     override fun equals(other: Any?): Boolean {
