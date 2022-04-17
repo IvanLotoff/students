@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import ru.ivan.students.domian.Project
+import ru.ivan.students.dto.request.ProjectRemoval
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.TagRequest
 import ru.ivan.students.dto.response.ProjectResponse
@@ -230,16 +232,15 @@ class ProjectController {
         return ResponseEntity.ok(projectService.getSortedByLikes())
     }
 
-//    @PostMapping("/delete")
-//    @PreAuthorize("hasRole('USER')")
-//    @SecurityRequirement(name = "apiKey")
-//    fun deleteProject(
-//        keycloakAuthenticationToken: KeycloakAuthenticationToken,
-//        @RequestBody id: String
-//    ): ProjectResponse {
-//        val userId =
-//            (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
-//        return projectService.addProject(projectRequest, userId)
-//    }
-
+    @PostMapping("/delete")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "apiKey")
+    fun deleteProject(
+        keycloakAuthenticationToken: KeycloakAuthenticationToken,
+        @RequestBody projectRemoval: ProjectRemoval
+    ) {
+        val userId =
+            (keycloakAuthenticationToken.principal as KeycloakPrincipal<*>).keycloakSecurityContext.token.subject
+        return projectService.deleteProjectById(projectRemoval.projectId, userId)
+    }
 }

@@ -23,7 +23,23 @@ class KeycloakService {
     @Autowired
     private lateinit var accountService: AccountService
 
-    fun registerUser(registrationRequest: RegistrationRequest): AccessTokenResponse? {
+    fun registerUserAndGetToken(registrationRequest: RegistrationRequest): AccessTokenResponse? {
+        val user = registerUser(registrationRequest)
+
+        return Keycloak.getInstance(
+            "http://localhost:8484/auth",
+            "test_realm",
+            user.username,
+            registrationRequest.password,
+            "login_app"
+        ).tokenManager().accessToken
+    }
+
+    fun registerUserAndGetUserId(registrationRequest: RegistrationRequest): String? {
+        return registerUser(registrationRequest).id
+    }
+
+    private fun registerUser(registrationRequest: RegistrationRequest): UserRepresentation {
         val password = preparePasswordRepresentation(registrationRequest.password)
         val user = prepareUserRepresentation(registrationRequest, password)
 
@@ -33,6 +49,8 @@ class KeycloakService {
         val response = userResource?.create(user)
         val userId = CreatedResponseUtil.getCreatedId(response)
 
+        user.id = userId
+
         val myUserResource = userResource?.get(userId)
         val toRepresentation = realmResource.roles().get("ROLE_USER").toRepresentation()
 
@@ -40,16 +58,11 @@ class KeycloakService {
 
         // Создаем аккаунт в нашей бд
         // id аккаунта совпадает с id пользователя в кейклоке
+
         val account = Account(id = userId)
         accountService.createAccount(account)
 
-        return Keycloak.getInstance(
-            "http://localhost:8484/auth",
-            "test_realm",
-            user.username,
-            registrationRequest.password,
-            "login_app"
-        ).tokenManager().accessToken
+        return user
     }
 
     fun authUser(userAuthRequest: UserAuthRequest): AccessTokenResponse? {
@@ -64,12 +77,13 @@ class KeycloakService {
 
     fun removeAllUsers() {
         val userResource: UsersResource? = keycloak.realm("test_realm").users()
-        val ids = userResource?.list()?.map { userRepresentation ->
-            userRepresentation.id
+        val ids = userResource?.list()?.map {
+                userRepresentation: UserRepresentation -> userRepresentation.id
         }
         ids?.forEach {
             userResource.get(it)?.remove()
         }
+
     }
 
     private fun prepareUserRepresentation(

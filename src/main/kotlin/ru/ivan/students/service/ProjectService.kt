@@ -15,6 +15,8 @@ import ru.ivan.students.dto.response.UserResponse
 import ru.ivan.students.repository.AccountRepository
 import ru.ivan.students.repository.ProjectAccountRepository
 import ru.ivan.students.repository.ProjectRepository
+import ru.ivan.students.repository.TagRepository
+import java.time.LocalDate
 import javax.transaction.Transactional
 
 
@@ -33,6 +35,7 @@ class ProjectService {
     @Autowired
     private lateinit var projectAccountRepository: ProjectAccountRepository
 
+    @Transactional
     fun addProject(project: ProjectRequest, userId: String): ProjectResponse {
         return projectRepository.save(
             project.toEntity(userId)
@@ -40,7 +43,7 @@ class ProjectService {
     }
 
     fun addTagListToProject(tags: List<TagRequest>, projectId: String, userId: String): ProjectResponse {
-        val project = projectRepository.findById(projectId).orElseThrow {
+        var project = projectRepository.findByIdAndDeletionDateNull(projectId).orElseThrow {
             RuntimeException("No such project $projectId")
         }
 
@@ -50,14 +53,14 @@ class ProjectService {
             project
         )
 
-        return projectRepository.findById(projectId).orElseThrow {
+        return projectRepository.findByIdAndDeletionDateNull(projectId).orElseThrow {
             RuntimeException("No such project $projectId")
         }.toResponse()
     }
 
     fun updateProject(project: ProjectRequest, userId: String, projectId: String): ProjectResponse {
         //Сброс тегов
-        val oldProject = projectRepository.findById(projectId).orElseThrow {
+        val oldProject = projectRepository.findByIdAndDeletionDateNull(projectId).orElseThrow {
             RuntimeException("No such project $projectId")
         }
 
@@ -107,7 +110,7 @@ class ProjectService {
     }
 
     fun deleteLikeProject(idProject: String, userId: String): ProjectResponse {
-        val project = projectRepository.findById(idProject).orElseThrow {
+        var project = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
             RuntimeException("No such project $idProject")
         }
         val account: Account = accountRepository.findById(userId).orElseThrow {
@@ -130,7 +133,7 @@ class ProjectService {
 
     @Transactional
     fun likeProject(idProject: String, userId: String): ProjectResponse {
-        val project = projectRepository.findById(idProject).orElseThrow {
+        var project = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
             RuntimeException("No such project $idProject")
         }
 
@@ -139,7 +142,7 @@ class ProjectService {
         }
 
 
-        val createdProjects = projectRepository.findByCreatorId(userId)
+        var createdProjects = projectRepository.findByCreatorIdAndDeletionDateNull(userId)
 
         if (createdProjects.contains(project) && account.likes.firstOrNull { it.project.id == project.id && it.account.id == account.id } != null)
             throw RuntimeException("User $userId can't like his created or liked projected $idProject")
@@ -190,7 +193,7 @@ class ProjectService {
     }
 
     fun getAllUserProjects(accountId: String): List<ProjectResponse> {
-        val projects = projectRepository.findByCreatorId(accountId)
+        var projects = projectRepository.findByCreatorIdAndDeletionDateNull(accountId)
 
         val res = mutableListOf<ProjectResponse>()
         for (it in projects) {
@@ -240,7 +243,7 @@ class ProjectService {
 //                }
 //    }
 
-    fun showAll() = projectRepository.findAll()
+    fun showAll() = projectRepository.findAllByDeletionDateNull()
         .map { project ->
             project.toResponse()
         }
@@ -251,20 +254,20 @@ class ProjectService {
         // то есть пустой объект, у которого заполнено только id, которое ты передал
         // метод findById обращается к базе
         // todo: оптимизировать для хибернейта, не выгружать все аккаунты, если нам нужно лишь их кол-во
-        return projectRepository.findById(idProject).orElseThrow {
+        return projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
             RuntimeException("getProjectLikesCount failed. No project found with id $idProject")
         }.accounts.count()
     }
 
     fun getProjectViewsCount(idProject: String): Int {
-        return projectRepository.findById(idProject).orElseThrow {
+        return projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
             RuntimeException("getProjectViewsCount failed. No project found with id $idProject")
         }.accountsView.count()
     }
 
 
     fun viewProject(idProject: String, userId: String): ProjectResponse {
-        val project = projectRepository.findById(idProject).orElseThrow {
+        val project = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
             RuntimeException("No such project $idProject")
         }
 
@@ -311,5 +314,23 @@ class ProjectService {
         //            .map { it ->
         //                ObjectMapper().readValue(it, Project::class.java)
         //            }
+    }
+
+    fun deleteProjectById(projectId: String, userId: String) {
+        // Проверяем, что проект создан именно этим пользователем
+        val userProject = projectRepository.findByCreatorIdAndDeletionDateNull(userId)
+            .firstOrNull { project ->
+                println("project.id = ${project.id} , projectId = $projectId , predicate matches ${project.id.toString() == projectId}")
+                project.id.toString() == projectId
+            }
+            ?: throw RuntimeException("user with id $userId is not creator of project with id $projectId")
+
+        // Проверяем, что проект ещё не удален
+        if(userProject.deletionDate != null)
+            throw RuntimeException("project $projectId is already deleted")
+
+        // Устанавлиеваем в поле deletionDate текущую дату
+        userProject.deletionDate = LocalDate.now()
+        projectRepository.save(userProject)
     }
 }
