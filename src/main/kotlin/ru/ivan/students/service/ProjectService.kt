@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import ru.ivan.students.domian.Account
+import ru.ivan.students.domian.Project
 import ru.ivan.students.domian.Tag
 import ru.ivan.students.domian.toResponse
 import ru.ivan.students.dto.request.ProjectRequest
@@ -258,7 +259,7 @@ class ProjectService {
         }
     }
 
-    fun getSortedByLikes(): List<String> {
+    fun getSortedByLikes(): Collection<Project> {
         return projectRepository.orderByLikes()
 //            .map { it ->
 //                ObjectMapper().readValue(it, Project::class.java)

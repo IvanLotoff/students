@@ -14,8 +14,8 @@ interface ProjectRepository : PagingAndSortingRepository<Project, String> {
 
     @Transactional
     @Query(
-        value = "SELECT p.* FROM accounts_projects_likes l JOIN projects p ON l.project_id = p.project_id GROUP BY p.project_id ORDER BY COUNT(*) DESC",
+        value = "SELECT p.* FROM accounts_projects_likes l INNER JOIN projects p USING (project_id) GROUP BY p.project_id ORDER BY COUNT(*) DESC",
         nativeQuery = true
     )
-    fun orderByLikes(): List<String>
+    fun orderByLikes(): Collection<Project>
 }
