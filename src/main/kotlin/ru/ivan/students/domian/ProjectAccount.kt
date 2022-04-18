@@ -1,21 +1,25 @@
 package ru.ivan.students.domian
 
 import org.hibernate.Hibernate
+import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDate
 import javax.persistence.*
 
 @Entity
 @Table(name = "accounts_projects_likes")
 data class ProjectAccount(
-    @EmbeddedId
-    var id:ProjectAccountId,
+    @Id
+    @Column(name = "id", updatable = false)
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    var id: String? = null,
 
-    @ManyToOne
-    @JoinColumn(name = "projectL_id", referencedColumnName = "project_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
     var project: Project,
 
-    @ManyToOne
-    @JoinColumn(name = "accountL_id", referencedColumnName = "account_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
     var account: Account,
 
     val createdOn: LocalDate = LocalDate.now()

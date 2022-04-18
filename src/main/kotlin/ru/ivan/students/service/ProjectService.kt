@@ -148,8 +148,9 @@ class ProjectService {
             throw RuntimeException("User $userId can't like his created or liked projected $idProject")
 
 
-        var projectAccount: ProjectAccount = ProjectAccount(
-            ProjectAccountId(account.id!!, project.id!!), project, account
+        val projectAccount: ProjectAccount = ProjectAccount(
+            project = project,
+            account = account
         )
 
 
