@@ -124,8 +124,15 @@ class MockUserInitializer : CommandLineRunner {
 
             var response = projectService.addProject(pr, idUser)
             projectId.add(response.id)
-            projectService.likeProject(response.id, idUser)
-            projectService.viewProject(response.id, idUser)
+//            projectService.likeProject(response.id, idUser)
+//            projectService.viewProject(response.id, idUser)
+        }
+
+        var i=0
+        for (idUser in ids) {
+            i++
+            projectService.likeProject(projectId[i%3], idUser)
+            projectService.viewProject(projectId[i%3], idUser)
         }
 
         projectService.viewProject(projectId[3], ids[0])
