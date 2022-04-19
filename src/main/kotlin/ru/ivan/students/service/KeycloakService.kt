@@ -3,6 +3,7 @@ package ru.ivan.students.service
 import org.keycloak.admin.client.CreatedResponseUtil
 import org.keycloak.admin.client.Keycloak
 import org.keycloak.admin.client.resource.RealmResource
+import org.keycloak.admin.client.resource.UserResource
 import org.keycloak.admin.client.resource.UsersResource
 import org.keycloak.representations.AccessTokenResponse
 import org.keycloak.representations.idm.CredentialRepresentation
@@ -93,11 +94,15 @@ class KeycloakService {
         val newUser = UserRepresentation()
         newUser.username = request.nickname
         newUser.firstName = request.firstName
+        newUser.lastName = request.lastName
         newUser.credentials = listOf(cR)
         newUser.email = request.email
         newUser.isEnabled = true
         newUser.realmRoles = listOf("ROLE_USER")
-        val attributes = mapOf("telegram" to listOf(request.telegram))
+        val attributes = mapOf(
+            TELEGRAM_ATTR to listOf(request.telegram),
+            PHONE_NUMBER_ATTR to listOf(request.phoneNumber)
+        )
         newUser.attributes = attributes
         return newUser
     }
@@ -110,15 +115,23 @@ class KeycloakService {
         return cR
     }
 
-   fun getuserInfoById(userId: String): UserResponse {
-        val user1: UserResponse = UserResponse(
-            email = "user1",
-            nickname = "user1",
-            phoneNumber = "user1",
-            firstName = "user1",
-            lastName = "user1",
-            telegram = "user1",
-        )
-        return user1
-    }
+   fun getUserInfoById(userId: String): UserResponse = keycloak.realm("test_realm")
+       .users()
+       .get(userId)
+       .toRepresentation()
+       .toUserResponse()
 }
+
+fun UserRepresentation.toUserResponse(): UserResponse {
+    return UserResponse(
+        email = this.email,
+        nickname = this.username,
+        phoneNumber = this.attributes[PHONE_NUMBER_ATTR]?.get(0),
+        firstName = this.firstName,
+        lastName = this.lastName,
+        telegram = this.attributes[TELEGRAM_ATTR]?.get(0),
+    )
+}
+
+const val TELEGRAM_ATTR = "telegram"
+const val PHONE_NUMBER_ATTR = "phoneNumber"

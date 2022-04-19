@@ -21,7 +21,7 @@ data class Project(
     var communication: String,
     var creatorId: String? = null,
 
-    @OneToMany(orphanRemoval = true, mappedBy = "account", cascade = arrayOf(CascadeType.ALL))
+    @OneToMany(orphanRemoval = true, mappedBy = "project", cascade = arrayOf(CascadeType.ALL))
     var accounts: MutableList<ProjectAccount> = mutableListOf(),
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "views")

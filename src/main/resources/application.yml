@@ -11,6 +11,7 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 keycloak:
   auth-server-url: http://localhost:8484/auth
@@ -45,3 +46,5 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type: TRACE
+
+

@@ -15,7 +15,6 @@ import ru.ivan.students.dto.response.UserResponse
 import ru.ivan.students.repository.AccountRepository
 import ru.ivan.students.repository.ProjectAccountRepository
 import ru.ivan.students.repository.ProjectRepository
-import ru.ivan.students.repository.TagRepository
 import java.time.LocalDate
 import javax.transaction.Transactional
 
@@ -180,7 +179,7 @@ class ProjectService {
             throw RuntimeException("User $userId has no rights to check who liked another $project")
         }
 
-        return project.accounts.map { it -> keycloakService.getuserInfoById(it.account.id!!) }
+        return project.accounts.map { keycloakService.getUserInfoById(it.account.id!!) }
     }
 
     fun getAllLikedProjects(accountId: String): List<ProjectResponse> {

@@ -7,13 +7,12 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.MediaType
 import org.springframework.http.MediaType.*
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import ru.ivan.students.domian.Tag
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.RegistrationRequest
 import ru.ivan.students.service.KeycloakService
@@ -73,7 +72,6 @@ internal class UserControllerTest {
             .response
             .contentAsString
 
-
         println(body)
         assertTrue { body.contains("access_token") }
     }
@@ -81,11 +79,14 @@ internal class UserControllerTest {
     @Test
     fun projectDeletionTest() {
         // Авторизируемся от пользователя user1: user1
-        val accessToken = authUser1()
+        val accessTokenUser1 = authUser(
+            username = "user1",
+            password = "user1"
+        )
 
         // Получаем id проекта, который создан user1
         val userProjectsRequest: MockHttpServletRequestBuilder = MockMvcRequestBuilders.get("/api/project/getCreated")
-            .header("Authorization", "Bearer $accessToken")
+            .header("Authorization", "Bearer $accessTokenUser1")
             .contentType(APPLICATION_JSON)
 
         val createdProjectsBody = mockMvc.perform(userProjectsRequest)
@@ -98,26 +99,12 @@ internal class UserControllerTest {
         val projectId = createdProjectsBody.getJsonFieldFromArrayWrapped("id")
 
         // Удаляем проект с projectId
-        val deleteProjectRequest: MockHttpServletRequestBuilder = MockMvcRequestBuilders.post("/api/project/delete")
-            .header("Authorization", "Bearer $accessToken")
-            .content(
-                JSONObject(
-                    """{
-                        "projectId": $projectId
-                    }"""
-                ).toString()
-            )
-            .contentType(APPLICATION_JSON)
-
-        // Удаляем проект по id
-        mockMvc.perform(deleteProjectRequest)
-            .andExpect(status().isOk)
-            .andReturn()
+        deleteProjectById(accessTokenUser1, projectId)
 
         // Ещё раз получаем id проекта, который создан user1
         // Теперь мы ожидаем пустой массив, так как проект был удален
         val userProjectsNewRequest: MockHttpServletRequestBuilder = MockMvcRequestBuilders.get("/api/project/getCreated")
-            .header("Authorization", "Bearer $accessToken")
+            .header("Authorization", "Bearer $accessTokenUser1")
             .contentType(APPLICATION_JSON)
 
         val createdProjectsBodyNew = mockMvc.perform(userProjectsNewRequest)
@@ -130,14 +117,135 @@ internal class UserControllerTest {
 
     }
 
-    private fun authUser1(): Any? {
+    @Test
+    fun getWhoLikedTest() {
+        // Авторизируемся от пользователя user1: user1
+        val accessTokenUser1 = authUser(
+            username = "user1",
+            password = "user1"
+        )
+
+        // Авторизируемся от пользователя user2: user2
+        val accessTokenUser2 = authUser(
+            username = "user2",
+            password = "user2"
+        )
+
+        // Создаем новый проект от первого пользователя
+        val newProjectFromUser1Id = addProject(
+            accessToken = accessTokenUser1,
+            title = "titleUser1",
+            description = "descriptionUser1",
+            communication = "communication"
+        )
+
+        // Лайкаем проект первого пользователя от имени второго пользователя
+        likeProject(accessTokenUser2, newProjectFromUser1Id)
+
+        // Проверяем, найдется ли id второго в json ответе метода getWhoLiked с
+        // access_token-ом первого пользователя
+        assertUserWithIdLikedProject(
+            accessToken = accessTokenUser1,
+            idProject = newProjectFromUser1Id,
+            userId = TODO("Подставить верный id второго юзера")
+        )
+    }
+
+    private fun assertUserWithIdLikedProject(
+        accessToken: Any?,
+        idProject: Any?,
+        userId: Any?
+    ): Boolean {
+        val req: MockHttpServletRequestBuilder = MockMvcRequestBuilders.get("/api/project/getWhoLiked?idProject=$idProject")
+            .contentType(APPLICATION_JSON)
+            .header("Authorization", "Bearer $accessToken")
+
+        val body = mockMvc.perform(req)
+            .andExpect(status().isOk)
+            .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+            .andReturn()
+            .response
+            .contentAsString
+
+        return body.contains(userId.toString())
+    }
+
+    private fun likeProject(
+        accessToken: Any?,
+        idProject: Any?
+    ) {
+        val req: MockHttpServletRequestBuilder = MockMvcRequestBuilders.post("/api/project/like/$idProject")
+            .contentType(APPLICATION_JSON)
+            .header("Authorization", "Bearer $accessToken")
+
+        mockMvc.perform(req)
+    }
+
+    private fun addProject(
+        accessToken: Any?,
+        title: String? = null,
+        description: String? = null,
+        communication: String? = null,
+        tag: Tag? = null
+    ): Any? {
+        val req: MockHttpServletRequestBuilder = MockMvcRequestBuilders.post("/api/project/add")
+            .contentType(APPLICATION_JSON)
+            .header("Authorization", "Bearer $accessToken")
+            .content(
+                JSONObject(
+                    """{
+                          "title": "$title",
+                          "description": "$description",
+                          "communication": "$communication",
+                          "tags": [
+                            {
+                              "name": "${tag?.name}",
+                              "about": "${tag?.about}"
+                            }
+                          ]
+                        }"""
+                ).toString()
+            )
+            .accept(APPLICATION_JSON)
+
+        val body = mockMvc.perform(req)
+            .andExpect(status().isOk)
+            .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+            .andReturn()
+            .response
+            .contentAsString
+
+        val projectId = body.getJsonField("id")
+        println("projectId = $projectId")
+        return projectId
+    }
+
+    private fun deleteProjectById(accessToken: Any?, projectId: Any?) {
+        val deleteProjectRequest: MockHttpServletRequestBuilder = MockMvcRequestBuilders.post("/api/project/delete")
+            .header("Authorization", "Bearer $accessToken")
+            .content(
+                JSONObject(
+                    """{
+                            "projectId": $projectId
+                        }"""
+                ).toString()
+            )
+            .contentType(APPLICATION_JSON)
+
+        // Удаляем проект по id
+        mockMvc.perform(deleteProjectRequest)
+            .andExpect(status().isOk)
+            .andReturn()
+    }
+
+    private fun authUser(username: String, password: String): Any? {
         val loginRequest: MockHttpServletRequestBuilder = MockMvcRequestBuilders.post("/auth/authUser")
             .contentType(APPLICATION_JSON)
             .content(
                 JSONObject(
                     """{
-                          "username": "user1",
-                          "password": "user1"
+                          "username": "$username",
+                          "password": "$password"
                     }"""
                 ).toString()
             )

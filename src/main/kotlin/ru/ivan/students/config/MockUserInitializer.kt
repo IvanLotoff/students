@@ -43,12 +43,12 @@ class MockUserInitializer : CommandLineRunner {
 
     val user1: RegistrationRequest = RegistrationRequest(
         email = "user1",
-        nickname = "string",
+        nickname = "user1",
         phoneNumber = "user1",
         firstName = "user1",
         lastName = "user1",
         telegram = "user1",
-        password = "string"
+        password = "user1"
     )
     val user2: RegistrationRequest = RegistrationRequest(
         email = "user2",
@@ -77,6 +77,15 @@ class MockUserInitializer : CommandLineRunner {
         telegram = "user4",
         password = "user4"
     )
+    val user5: RegistrationRequest = RegistrationRequest(
+        email = "user5",
+        nickname = "string",
+        phoneNumber = "user5",
+        firstName = "user5",
+        lastName = "user5",
+        telegram = "user5",
+        password = "string"
+    )
 
     private fun createMockUsers(): List<String> {
         val listId = mutableListOf<String>()
@@ -84,6 +93,7 @@ class MockUserInitializer : CommandLineRunner {
         listId.add(keycloakService.registerUserAndGetUserId(user2)!!)
         listId.add(keycloakService.registerUserAndGetUserId(user3)!!)
         listId.add(keycloakService.registerUserAndGetUserId(user4)!!)
+        listId.add(keycloakService.registerUserAndGetUserId(user5)!!)
         return listId
     }
 
