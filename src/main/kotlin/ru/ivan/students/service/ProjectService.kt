@@ -152,7 +152,7 @@ class ProjectService {
 
         var createdProjects = projectRepository.findByCreatorIdAndDeletionDateNull(userId)
 
-        if (createdProjects.contains(project) && account.likes.firstOrNull { it.project.id == project.id && it.account.id == account.id } != null)
+        if (createdProjects.contains(project) || account.likes.firstOrNull { it.project.id == project.id && it.account.id == account.id } != null)
             throw RuntimeException("User $userId can't like his created or liked projected $idProject")
 
 
