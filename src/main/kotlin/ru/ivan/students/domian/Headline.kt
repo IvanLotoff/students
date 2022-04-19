@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY
 import org.hibernate.Hibernate
 import org.hibernate.annotations.GenericGenerator
+import org.hibernate.annotations.Type
 import javax.persistence.*
 
 @Entity
@@ -11,8 +12,12 @@ import javax.persistence.*
 data class Headline(
     @Id
     @Column(name = "headline_id", updatable = false)
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
     val id: String? = null,
     val name: String,
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     val text: String,
     val tag: String,
     val source: String,

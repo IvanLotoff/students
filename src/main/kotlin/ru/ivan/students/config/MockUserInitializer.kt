@@ -11,6 +11,7 @@ import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.RegistrationRequest
 import ru.ivan.students.dto.request.TagRequest
 import ru.ivan.students.service.KeycloakService
+import ru.ivan.students.service.NewsService
 import ru.ivan.students.service.ProjectService
 import ru.ivan.students.service.StepikService
 import java.util.*
@@ -32,6 +33,9 @@ class MockUserInitializer : CommandLineRunner {
     @Autowired
     private lateinit var projectService: ProjectService
 
+    @Autowired
+    var newsService = NewsService();
+
     override fun run(vararg args: String?) {
         keycloakService.removeAllUsers()
         println("all users are removed")
@@ -39,6 +43,8 @@ class MockUserInitializer : CommandLineRunner {
         println("user1-user1 and user2-user2 are created")
         stepikService.getCourses(1)
         println("courses from Stepik loaded")
+        newsService.getCourses(1)
+        println("News loaded")
     }
 
     val user1: RegistrationRequest = RegistrationRequest(
