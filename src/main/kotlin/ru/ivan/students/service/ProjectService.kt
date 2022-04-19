@@ -222,9 +222,12 @@ class ProjectService {
             RuntimeException("Account with id $accountId does not exist")
         }
 
+        //Разбиваем на теги тегов, слов из названия
         val tags: MutableList<String> =
             account.likes.map { it.project }.flatMap { it.tags }.map { it.name }.distinct().toMutableList()
-        tags.addAll(account.likes.map { it.project }.flatMap { it.title.split(" ") }.distinct().toMutableList())
+        tags.addAll(
+            account.likes.map { it.project }.flatMap { it.title.split(" ", ",", "/", "") }.distinct().toMutableList()
+        )
 
         // Get all another project which are not the same
         val allProjects = projectRepository.findAll()
@@ -285,16 +288,19 @@ class ProjectService {
         // getById не обращается к базе, а создает прокси объект,
         // то есть пустой объект, у которого заполнено только id, которое ты передал
         // метод findById обращается к базе
-        // todo: оптимизировать для хибернейта, не выгружать все аккаунты, если нам нужно лишь их кол-во
-        return projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
+        var pr = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
             RuntimeException("getProjectLikesCount failed. No project found with id $idProject")
-        }.accounts.count()
+        }
+        return projectRepository.countLikesById(pr.id.toString())
+        //return pr.accounts.count()
     }
 
     fun getProjectViewsCount(idProject: String): Int {
-        return projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
+        val pr = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
             RuntimeException("getProjectViewsCount failed. No project found with id $idProject")
-        }.accountsView.count()
+        }
+        return projectRepository.countViewsById(pr.id.toString())
+        //}.accountsView.count()
     }
 
     @Transactional
@@ -333,7 +339,8 @@ class ProjectService {
         val projectIds = projectRepository.orderIdsByLikes()
         val projectsResponse = mutableListOf<ProjectResponse>()
         for (id in projectIds) {
-            val project = projectRepository.findById(id).orElseThrow {
+            //TODO проверить что работает когда удаляешь проект
+            val project = projectRepository.findByIdAndDeletionDateNull(id).orElseThrow {
                 RuntimeException("No such project $id")
             }
             projectsResponse.add(project.toResponse())

@@ -2,6 +2,7 @@ package ru.ivan.students.repository
 
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.PagingAndSortingRepository
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import ru.ivan.students.domian.Project
@@ -26,6 +27,21 @@ interface ProjectRepository : PagingAndSortingRepository<Project, String> {
         nativeQuery = true
     )
     fun orderIdsByLikes(): Collection<String>
+
+
+    @Transactional
+    @Query(
+        value = "SELECT COUNT(*) FROM accounts_projects_likes WHERE project_id =:id",
+        nativeQuery = true
+    )
+    fun countLikesById(@Param("id") id: String): Int
+
+    @Transactional
+    @Query(
+        value = "SELECT COUNT(*) FROM accounts_projects_views WHERE project_id =:id",
+        nativeQuery = true
+    )
+    fun countViewsById(@Param("id") id: String): Int
 
     fun findByIdAndDeletionDateNull(id: String): Optional<Project>
 

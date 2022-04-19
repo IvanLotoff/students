@@ -84,15 +84,13 @@ class MockUserInitializer : CommandLineRunner {
         listId.add(keycloakService.registerUserAndGetUserId(user2)!!)
         listId.add(keycloakService.registerUserAndGetUserId(user3)!!)
         listId.add(keycloakService.registerUserAndGetUserId(user4)!!)
-
-        println(listId)
         return listId
     }
 
     private fun createMockProjects(ids: List<String>) {
         val projectId = mutableListOf<String>()
 
-        val tagList =  mutableListOf<TagRequest>(
+        val tagList = mutableListOf<TagRequest>(
             TagRequest(
                 name = "string",
                 about = "string",
@@ -111,15 +109,17 @@ class MockUserInitializer : CommandLineRunner {
             var response = projectService.addProject(pr, idUser)
             projectId.add(response.id)
             projectService.likeProject(response.id, idUser)
+            projectService.viewProject(response.id, idUser)
         }
 
+        projectService.viewProject(projectId[3], ids[0])
         projectService.likeProject(projectId[3], ids[0])
-        //projectService.deleteLikeProject(projectId[3], ids[0])
+
         projectService.deleteLikeProject(projectId[0], ids[0])
         projectService.deleteLikeProject(projectId[3], ids[0])
 
         projectService.updateProject(pr, ids[0], projectId[0])
-        projectService.addTagListToProject(tagList,  projectId[0], ids[0])
+        projectService.addTagListToProject(tagList, projectId[0], ids[0])
 
         projectService.searchRecommendedProjects(ids[0])
     }
