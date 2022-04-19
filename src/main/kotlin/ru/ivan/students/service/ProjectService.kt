@@ -42,12 +42,13 @@ class ProjectService {
         ).toResponse()
     }
 
+    @Transactional
     fun addTagListToProject(tags: List<TagRequest>, projectId: String, userId: String): ProjectResponse {
         var project = projectRepository.findByIdAndDeletionDateNull(projectId).orElseThrow {
             RuntimeException("No such project $projectId")
         }
 
-        project.tags = tags.toTagEntityList(project) as MutableList<Tag>
+        project.tags.addAll(tags.toTagEntityList(project) as MutableList<Tag>)
 
         projectRepository.save(
             project
@@ -58,6 +59,7 @@ class ProjectService {
         }.toResponse()
     }
 
+    @Transactional
     fun updateProject(project: ProjectRequest, userId: String, projectId: String): ProjectResponse {
         //Сброс тегов
         val oldProject = projectRepository.findByIdAndDeletionDateNull(projectId).orElseThrow {
@@ -68,10 +70,12 @@ class ProjectService {
             throw RuntimeException("User $userId has no rights to change another $projectId")
         }
 
-        val tags = oldProject.tags.toMutableList()
-        tags.forEach { tag ->
-            oldProject.tags.remove(tag)
-            tag.project = null
+        if (oldProject.tags.isNotEmpty()) {
+            val tags = oldProject.tags.toMutableList()
+            tags.forEach { tag ->
+                oldProject.tags.remove(tag)
+                tag.project = null
+            }
         }
         projectRepository.save(oldProject)
 
@@ -109,6 +113,7 @@ class ProjectService {
         return res
     }
 
+    @Transactional
     fun deleteLikeProject(idProject: String, userId: String): ProjectResponse {
         var project = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
             RuntimeException("No such project $idProject")
@@ -122,6 +127,7 @@ class ProjectService {
             if (it.project == project && it.account == account) {
                 account.likes.remove(it)
                 project.accounts.remove(it)
+                projectAccountRepository.delete(it)
             }
         })
 
@@ -152,8 +158,6 @@ class ProjectService {
             project = project,
             account = account
         )
-
-
 
 
         projectAccountRepository.save(projectAccount)
@@ -209,12 +213,15 @@ class ProjectService {
     /***
      * Logic of recommendations
      */
+    @Transactional
     fun searchRecommendedProjects(accountId: String): List<ProjectResponse> {
         val account = accountRepository.findById(accountId).orElseThrow {
             RuntimeException("Account with id $accountId does not exist")
         }
 
-        val tags = account.likes.map { it.project }.flatMap { it.tags }.map { it.name }.distinct()
+        val tags: MutableList<String> =
+            account.likes.map { it.project }.flatMap { it.tags }.map { it.name }.distinct().toMutableList()
+        tags.addAll(account.likes.map { it.project }.flatMap { it.title.split(" ") }.distinct().toMutableList())
 
         // Get all another project which are not the same
         val allProjects = projectRepository.findAll()
@@ -224,13 +231,32 @@ class ProjectService {
         val recommends = mutableListOf<ProjectResponse>()
         for (it in allProjects) {
             if (it.creatorId != accountId) {
-                for (el in it.tags)
-                    if (tags.contains(el.name)) {
-                        recommends.add(it.toResponse())
+                var flag = false
+                for (tag in tags) {
+                    if (it.title.contains(tag) || it.description.contains(tag)) {
+                        flag = true
+                        break
                     }
+                }
+
+                for (el in it.tags)
+                    if (tags.contains(el.name) || it.description.contains(el.name) || it.title.contains(el.name)) {
+                        recommends.add(it.toResponse())
+                        flag = true
+                        break
+                    }
+
+                if (flag) {
+                    recommends.add(it.toResponse())
+                }
             }
         }
-        return recommends
+
+//        println("!!!!!!!!!")
+//        for (rec in recommends.distinct())
+//            println("$rec \n")
+
+        return recommends.distinct()
     }
 
     //    fun showAll(): List<ProjectResponse> {
@@ -268,7 +294,7 @@ class ProjectService {
         }.accountsView.count()
     }
 
-
+    @Transactional
     fun viewProject(idProject: String, userId: String): ProjectResponse {
         val project = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
             RuntimeException("No such project $idProject")
@@ -329,7 +355,7 @@ class ProjectService {
             ?: throw RuntimeException("user with id $userId is not creator of project with id $projectId")
 
         // Проверяем, что проект ещё не удален
-        if(userProject.deletionDate != null)
+        if (userProject.deletionDate != null)
             throw RuntimeException("project $projectId is already deleted")
 
         // Устанавлиеваем в поле deletionDate текущую дату

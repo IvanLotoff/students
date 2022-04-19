@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
+import ru.ivan.students.domian.Tag
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.RegistrationRequest
+import ru.ivan.students.dto.request.TagRequest
 import ru.ivan.students.service.KeycloakService
 import ru.ivan.students.service.ProjectService
 import ru.ivan.students.service.StepikService
@@ -41,12 +43,12 @@ class MockUserInitializer : CommandLineRunner {
 
     val user1: RegistrationRequest = RegistrationRequest(
         email = "user1",
-        nickname = "user1",
+        nickname = "string",
         phoneNumber = "user1",
         firstName = "user1",
         lastName = "user1",
         telegram = "user1",
-        password = "user1"
+        password = "string"
     )
     val user2: RegistrationRequest = RegistrationRequest(
         email = "user2",
@@ -90,19 +92,36 @@ class MockUserInitializer : CommandLineRunner {
     private fun createMockProjects(ids: List<String>) {
         val projectId = mutableListOf<String>()
 
-        for (idUser in ids) {
-            val pr = ProjectRequest(
-                title = "string",
-                description = "string",
-                communication = "string",
-                tags = mutableListOf()
+        val tagList =  mutableListOf<TagRequest>(
+            TagRequest(
+                name = "string",
+                about = "string",
             )
+        )
+
+        val pr = ProjectRequest(
+            title = "string",
+            description = "string",
+            communication = "string",
+            tags = tagList
+        )
+
+        for (idUser in ids) {
+
             var response = projectService.addProject(pr, idUser)
             projectId.add(response.id)
             projectService.likeProject(response.id, idUser)
         }
 
         projectService.likeProject(projectId[3], ids[0])
+        //projectService.deleteLikeProject(projectId[3], ids[0])
+        projectService.deleteLikeProject(projectId[0], ids[0])
+        projectService.deleteLikeProject(projectId[3], ids[0])
+
+        projectService.updateProject(pr, ids[0], projectId[0])
+        projectService.addTagListToProject(tagList,  projectId[0], ids[0])
+
+        projectService.searchRecommendedProjects(ids[0])
     }
 
     //    private fun registerAndGetID(user: RegistrationRequest): String {

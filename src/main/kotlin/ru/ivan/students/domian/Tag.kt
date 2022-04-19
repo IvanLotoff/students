@@ -20,9 +20,9 @@ data class Tag(
     val about: String? = null,
 
 
-    @ManyToOne(cascade = [CascadeType.ALL])
+    @ManyToOne(cascade = [CascadeType.PERSIST,CascadeType.MERGE])
     @JoinColumn(name = "project_id")
-    //@OnDelete(action = OnDeleteAction.CASCADE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     var project: Project?
 ) {
     override fun equals(other: Any?): Boolean {
