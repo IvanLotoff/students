@@ -122,7 +122,10 @@ class ProjectService {
             RuntimeException("No such user $userId")
         }
 
-        var likes = account.likes
+        var likes = account.likes.toMutableList()
+
+        println(likes)
+
         (likes.forEach {
             if (it.project == project && it.account == account) {
                 account.likes.remove(it)
