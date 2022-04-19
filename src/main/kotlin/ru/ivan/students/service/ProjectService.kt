@@ -154,6 +154,8 @@ class ProjectService {
         )
 
 
+
+
         projectAccountRepository.save(projectAccount)
         account.likes.add(projectAccount)
         project.accounts.add(projectAccount)

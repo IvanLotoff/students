@@ -45,7 +45,7 @@ class ProjectController {
     @Operation(summary = "Вывод всех созданных проектов пользователями")
     fun showAll(): List<ProjectResponse> = projectService.showAll()
 
-    @PostMapping("/recommend")
+    @GetMapping("/recommend")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
     @Operation(summary = "Показать рекомендованные проекты")
@@ -57,7 +57,7 @@ class ProjectController {
 
         return ResponseEntity.ok(projectService.searchRecommendedProjects(userId))
     }
-    @PostMapping("/getWhoLiked")
+    @GetMapping("/getWhoLiked")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
     @Operation(summary = "Показать аккаунты, которые лайкали проект")
@@ -71,7 +71,7 @@ class ProjectController {
         return ResponseEntity.ok(projectService.getAllAccountWhoLikedProject(userId, idProject))
     }
 
-    @PostMapping("/getLiked")
+    @GetMapping("/getLiked")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
     @Operation(summary = "Показать лайкнутые пользователем проекты")
@@ -174,7 +174,7 @@ class ProjectController {
         return projectService.viewProject(idProject, userId)
     }
 
-    @PostMapping("/showViews")
+    @GetMapping("/showViews")
     @Operation(summary = "Показать количество просмотров проекта")
     fun getViewsCount(
         @RequestParam idProject: String
@@ -196,7 +196,7 @@ class ProjectController {
     }
 
 
-    @PostMapping("/showLikes")
+    @GetMapping("/showLikes")
     @Operation(summary = "Показать количество лайков проекта")
     fun getLikesCount(
         @RequestParam idProject: String
