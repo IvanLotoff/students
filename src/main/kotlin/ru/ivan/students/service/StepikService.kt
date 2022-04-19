@@ -64,7 +64,7 @@ class StepikService {
     }
 
 
-    fun getCourses(repeatTimes: Int) {
+    fun getCourses(repeatTimes: Int): Boolean {
         var treeNode: MutableList<String> = mutableListOf()
         var number = 0
         repeat(repeatTimes) {
@@ -128,6 +128,7 @@ class StepikService {
             courseRepository.save(course)
         }
 
+        return true
     }
 }
 
