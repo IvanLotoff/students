@@ -34,6 +34,7 @@ internal class UserControllerTest {
 
     @Autowired
     private lateinit var projectService: ProjectService
+    private lateinit var userIdsByUsername: Map<String, String>
 
     @BeforeEach
     fun setUp() {
@@ -147,7 +148,7 @@ internal class UserControllerTest {
         assertUserWithIdLikedProject(
             accessToken = accessTokenUser1,
             idProject = newProjectFromUser1Id,
-            userId = TODO("Подставить верный id второго юзера")
+            userId = userIdsByUsername["user1"]
         )
     }
 
@@ -301,17 +302,17 @@ internal class UserControllerTest {
             password = "user4"
         )
 
-        val listOfIds = listOf(
-            keycloakService.registerUserAndGetUserId(user1)!!,
-            keycloakService.registerUserAndGetUserId(user2)!!,
-            keycloakService.registerUserAndGetUserId(user3)!!,
-            keycloakService.registerUserAndGetUserId(user4)!!
+        userIdsByUsername = mapOf(
+            "user1" to keycloakService.registerUserAndGetUserId(user1)!!,
+            "user2" to keycloakService.registerUserAndGetUserId(user2)!!,
+            "user3" to keycloakService.registerUserAndGetUserId(user3)!!,
+            "user4" to keycloakService.registerUserAndGetUserId(user4)!!
         )
 
-        createMockProjects(listOfIds)
+        createMockProjects(userIdsByUsername.values)
     }
 
-    private fun createMockProjects(ids: List<String>) {
+    private fun createMockProjects(ids: Collection<String>) {
         val projectId = mutableListOf<String>()
 
         for (idUser in ids) {
@@ -325,8 +326,6 @@ internal class UserControllerTest {
             projectId.add(response.id)
             projectService.likeProject(response.id, idUser)
         }
-
-        projectService.likeProject(projectId[3], ids[0])
     }
 
 //    @Test
