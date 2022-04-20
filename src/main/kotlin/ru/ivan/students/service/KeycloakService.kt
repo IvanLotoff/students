@@ -124,6 +124,7 @@ class KeycloakService {
 
 fun UserRepresentation.toUserResponse(): UserResponse {
     return UserResponse(
+        id = this.id,
         email = this.email,
         nickname = this.username,
         phoneNumber = this.attributes[PHONE_NUMBER_ATTR]?.get(0),
