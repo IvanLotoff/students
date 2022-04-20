@@ -16,7 +16,9 @@ import ru.ivan.students.repository.AccountRepository
 import ru.ivan.students.repository.ProjectAccountRepository
 import ru.ivan.students.repository.ProjectRepository
 import java.time.LocalDate
+import java.util.*
 import javax.transaction.Transactional
+import kotlin.collections.ArrayList
 
 
 @Service
@@ -94,15 +96,15 @@ class ProjectService {
         val allProjects = projectRepository.findAll()
 
         val res = mutableListOf<ProjectResponse>()
-        val keys = searchValue.split(" ", ",")
+        val keys = searchValue.lowercase().split(" ", ",")
 
         for (key in keys) {
             for (it in allProjects) {
 
-                if (it.description.contains(key)
-                    || it.title.contains(key)
-                    || it.tags.map { it.name }.distinct().contains(key)
-                    || it.tags.map { it.about }.distinct().contains(key)
+                if (it.description.lowercase().contains(key)
+                    || it.title.lowercase().contains(key)
+                    || it.tags.map { it.name.lowercase() }.distinct().contains(key)
+                    || it.tags.map { it.about?.lowercase() ?: "" }.distinct().contains(key)
                 ) {
                     res.add(it.toResponse())
                 }
@@ -223,9 +225,10 @@ class ProjectService {
 
         //Разбиваем на теги тегов, слов из названия
         val tags: MutableList<String> =
-            account.likes.map { it.project }.flatMap { it.tags }.map { it.name }.distinct().toMutableList()
+            account.likes.map { it.project }.flatMap { it.tags }.map { it.name.lowercase() }.distinct().toMutableList()
         tags.addAll(
-            account.likes.map { it.project }.flatMap { it.title.split(" ", ",", "/", "") }.distinct().toMutableList()
+            account.likes.map { it.project }.flatMap { it.title.lowercase().split(" ", ",", "/", "") }.distinct()
+                .toMutableList()
         )
 
         // Get all another project which are not the same
@@ -238,14 +241,17 @@ class ProjectService {
             if (it.creatorId != accountId) {
                 var flag = false
                 for (tag in tags) {
-                    if (it.title.contains(tag) || it.description.contains(tag)) {
+                    if (it.title.lowercase().contains(tag) || it.description.lowercase().contains(tag)) {
                         flag = true
                         break
                     }
                 }
 
                 for (el in it.tags)
-                    if (tags.contains(el.name) || it.description.contains(el.name) || it.title.contains(el.name)) {
+                    if (tags.contains(el.name.lowercase()) || it.description.contains(el.name.lowercase()) || it.title.contains(
+                            el.name.lowercase()
+                        )
+                    ) {
                         recommends.add(it.toResponse())
                         flag = true
                         break

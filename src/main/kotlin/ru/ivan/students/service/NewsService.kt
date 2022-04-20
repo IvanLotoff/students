@@ -22,9 +22,8 @@ class NewsService {
 
 
     fun getCourses(repeatTimes: Int): Boolean {
-        var treeNode: MutableList<String> = mutableListOf()
-        var number = 0
-        number++
+        val treeNode: MutableList<String> = mutableListOf()
+
         val url =
             URL("https://newsapi.org/v2/top-headlines?country=ru&category=science&apiKey=08dc9c2a63f1489abdb785f445aff415")
         val http = url.openConnection() as HttpURLConnection
