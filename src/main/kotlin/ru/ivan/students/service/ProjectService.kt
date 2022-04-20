@@ -171,7 +171,7 @@ class ProjectService {
     }
 
     fun getAllAccountWhoLikedProject(userId: String, idProject: String): List<UserResponse> {
-        val project = projectRepository.findById(idProject).orElseThrow {
+        val project = projectRepository.findUsingEntityGraphAccountById(idProject).orElseThrow {
             RuntimeException("getProjectViewsCount failed. No project found with id $idProject")
         }
 

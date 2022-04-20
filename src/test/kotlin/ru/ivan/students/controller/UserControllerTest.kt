@@ -324,7 +324,6 @@ internal class UserControllerTest {
             )
             val response = projectService.addProject(pr, idUser)
             projectId.add(response.id)
-            projectService.likeProject(response.id, idUser)
         }
     }
 

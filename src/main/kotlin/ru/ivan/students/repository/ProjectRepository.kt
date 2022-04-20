@@ -1,11 +1,13 @@
 package ru.ivan.students.repository
 
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import ru.ivan.students.domian.Project
+import java.sql.ResultSet
 import java.util.*
 
 @Repository
@@ -46,4 +48,7 @@ interface ProjectRepository : PagingAndSortingRepository<Project, String> {
     fun findByIdAndDeletionDateNull(id: String): Optional<Project>
 
     fun findAllByDeletionDateNull(): List<Project>
+
+    @EntityGraph(attributePaths = ["accounts", "accounts.account"])
+    fun findUsingEntityGraphAccountById(@Param("id") id: String): Optional<Project>
 }
