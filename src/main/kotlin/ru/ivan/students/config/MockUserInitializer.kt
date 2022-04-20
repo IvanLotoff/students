@@ -128,11 +128,11 @@ class MockUserInitializer : CommandLineRunner {
 //            projectService.viewProject(response.id, idUser)
         }
 
-        var i=0
+        var i = 0
         for (idUser in ids) {
             i++
-            projectService.likeProject(projectId[i%3], idUser)
-            projectService.viewProject(projectId[i%3], idUser)
+            projectService.likeProject(projectId[i % 3], idUser)
+            projectService.viewProject(projectId[i % 3], idUser)
         }
 
         projectService.viewProject(projectId[3], ids[0])
@@ -145,6 +145,8 @@ class MockUserInitializer : CommandLineRunner {
         projectService.addTagListToProject(tagList, projectId[0], ids[0])
 
         projectService.searchRecommendedProjects(ids[0])
+
+        projectService.getSortedByLikes()
     }
 
     //    private fun registerAndGetID(user: RegistrationRequest): String {

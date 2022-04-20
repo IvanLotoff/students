@@ -340,8 +340,10 @@ class ProjectService {
         }
     }
 
+    @Transactional
     fun getSortedByLikes(): List<ProjectResponse> {
-        val projectIds = projectRepository.orderIdsByLikes()
+        val projectIds = projectRepository.orderIdsByLikes() as MutableList<String>
+        projectIds.addAll(projectRepository.getIdsWithZero())
         val projectsResponse = mutableListOf<ProjectResponse>()
         for (id in projectIds) {
             //TODO проверить что работает когда удаляешь проект
@@ -351,6 +353,9 @@ class ProjectService {
             projectsResponse.add(project.toResponse())
         }
 
+        println("SORTED BY LIKES")
+        for (temp in projectsResponse)
+            println(temp)
         return projectsResponse
 
         //Аналогичный способ достать сразу коллекцию стрингов-проектов, но тогда нужно кастить

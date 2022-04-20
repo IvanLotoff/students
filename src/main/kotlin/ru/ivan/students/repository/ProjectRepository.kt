@@ -30,6 +30,12 @@ interface ProjectRepository : PagingAndSortingRepository<Project, String> {
     )
     fun orderIdsByLikes(): Collection<String>
 
+    @Transactional
+    @Query(
+        value = "SELECT p.project_id FROM projects p LEFT JOIN accounts_projects_likes l USING (project_id) where l.project_id is null",
+        nativeQuery = true
+    )
+    fun getIdsWithZero(): Collection<String>
 
     @Transactional
     @Query(
