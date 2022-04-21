@@ -3,9 +3,9 @@ server:
 spring:
   application.name: ${APPLICATION_NAME:spring-security-keycloak}
   datasource:
-    url: jdbc:postgresql://localhost:5431/main_db
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://92.242.58.173:1984/db_test
+    username: u_test
+    password: testpwd
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
