@@ -37,7 +37,7 @@ class CVController {
     }
 
 
-    @PostMapping("/update")
+    @PutMapping("/update")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
     @Operation(summary = "Обновление резюме")

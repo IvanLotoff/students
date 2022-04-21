@@ -56,6 +56,7 @@ class ProjectController {
 
         return ResponseEntity.ok(projectService.searchRecommendedProjects(userId))
     }
+
     @GetMapping("/getWhoLiked")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
@@ -110,7 +111,7 @@ class ProjectController {
         return projectService.addTagListToProject(tags, idProject, userId)
     }
 
-    @PostMapping("/updateProject")
+    @PutMapping("/updateProject")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
     @Operation(summary = "Обновить проект по id")
@@ -132,7 +133,7 @@ class ProjectController {
         return ResponseEntity.ok(projectService.searchProject(key))
     }
 
-    @PostMapping("/removeLike/{idProject}")
+    @DeleteMapping("/removeLike/{idProject}")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
     @Operation(summary = "Поставить лайк на проект")
@@ -231,7 +232,7 @@ class ProjectController {
         return ResponseEntity.ok(projectService.getSortedByLikes())
     }
 
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "apiKey")
     fun deleteProject(
