@@ -17,4 +17,8 @@ class AccountService {
     fun createAccount(account: Account): Account {
         return accountRepository.save(account)
     }
+
+    fun deleteAllAccounts() {
+        accountRepository.deleteAll()
+    }
 }

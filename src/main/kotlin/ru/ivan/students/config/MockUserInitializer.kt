@@ -1,12 +1,9 @@
 package ru.ivan.students.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
-import ru.ivan.students.domian.Tag
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.RegistrationRequest
 import ru.ivan.students.dto.request.TagRequest
@@ -14,7 +11,6 @@ import ru.ivan.students.service.KeycloakService
 import ru.ivan.students.service.NewsService
 import ru.ivan.students.service.ProjectService
 import ru.ivan.students.service.StepikService
-import java.util.*
 
 
 /**

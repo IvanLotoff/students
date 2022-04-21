@@ -16,7 +16,6 @@ import ru.ivan.students.repository.AccountRepository
 import ru.ivan.students.repository.ProjectAccountRepository
 import ru.ivan.students.repository.ProjectRepository
 import java.time.LocalDate
-import java.util.*
 import javax.transaction.Transactional
 import kotlin.collections.ArrayList
 
@@ -381,5 +380,9 @@ class ProjectService {
         // Устанавлиеваем в поле deletionDate текущую дату
         userProject.deletionDate = LocalDate.now()
         projectRepository.save(userProject)
+    }
+
+    fun deleteAllProjects() {
+        projectRepository.deleteAll()
     }
 }

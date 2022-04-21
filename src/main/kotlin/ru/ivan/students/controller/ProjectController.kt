@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import ru.ivan.students.domian.Project
 import ru.ivan.students.dto.request.ProjectRemoval
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.TagRequest
