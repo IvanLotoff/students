@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import ru.ivan.students.domian.Course
 import ru.ivan.students.repository.CourseRepository
 import java.io.BufferedReader
@@ -60,7 +62,7 @@ class StepikService {
             return node.get("access_token").toString().replace("\"", "")
         }
 
-        throw RuntimeException("No token")
+        throw ResponseStatusException(HttpStatus.BAD_REQUEST,"No token")
     }
 
 

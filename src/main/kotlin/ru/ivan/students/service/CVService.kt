@@ -1,7 +1,9 @@
 package ru.ivan.students.service
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import ru.ivan.students.domian.CV
 import ru.ivan.students.domian.toResponse
 import ru.ivan.students.dto.request.CVRequest
@@ -39,7 +41,7 @@ class CVService {
 
     fun getAllCvFromAccount(accountId: String): List<CVResponse> {
         var account = accountRepository.findById(accountId).orElseThrow {
-            throw RuntimeException("Can't find user $accountId")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST,"Can't find user $accountId")
         }
         return account.cvs.map { cv -> cv.toResponse() };
     }

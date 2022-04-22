@@ -17,7 +17,7 @@ import ru.ivan.students.service.StepikService
  * Класс для очистки пользователей и создания двух новых
  * Нужен для синхронизации keycloak с таблицей accounts
  */
-@Profile("initMockUsers")
+@Profile("demoProfile")
 @Component
 class MockUserInitializer : CommandLineRunner {
     @Autowired
