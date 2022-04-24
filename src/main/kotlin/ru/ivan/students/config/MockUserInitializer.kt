@@ -168,7 +168,7 @@ class MockUserInitializer : CommandLineRunner {
         projectService.deleteLikeProject(projectId[3], ids[0])
 
         projectService.updateProject(projectList[0], ids[0], projectId[0])
-        projectService.addTagListToProject(tagList, projectId[0], ids[0])
+        //projectService.addTagListToProject(tagList, projectId[0], ids[0])
 
         projectService.searchRecommendedProjects(ids[0])
 

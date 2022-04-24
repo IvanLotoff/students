@@ -7,7 +7,10 @@ import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
-import ru.ivan.students.domian.*
+import ru.ivan.students.domian.Account
+import ru.ivan.students.domian.ProjectAccount
+import ru.ivan.students.domian.Tag
+import ru.ivan.students.domian.toResponse
 import ru.ivan.students.dto.request.ProjectRequest
 import ru.ivan.students.dto.request.TagRequest
 import ru.ivan.students.dto.request.toEntity
@@ -19,7 +22,6 @@ import ru.ivan.students.repository.ProjectAccountRepository
 import ru.ivan.students.repository.ProjectRepository
 import java.time.LocalDate
 import javax.transaction.Transactional
-import kotlin.collections.ArrayList
 
 
 @Service
@@ -47,7 +49,7 @@ class ProjectService {
     @Transactional
     fun addTagListToProject(tags: List<TagRequest>, projectId: String, userId: String): ProjectResponse {
         val project = projectRepository.findByIdAndDeletionDateNull(projectId).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"No such project $projectId")
+            ResponseStatusException(HttpStatus.BAD_REQUEST, "No such project $projectId")
         }
 
         project.tags.addAll(tags.toTagEntityList(project) as MutableList<Tag>)
@@ -57,7 +59,7 @@ class ProjectService {
         )
 
         return projectRepository.findByIdAndDeletionDateNull(projectId).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"No such project $projectId")
+            ResponseStatusException(HttpStatus.BAD_REQUEST, "No such project $projectId")
         }.toResponse()
     }
 
@@ -65,11 +67,14 @@ class ProjectService {
     fun updateProject(project: ProjectRequest, userId: String, projectId: String): ProjectResponse {
         //Сброс тегов
         val oldProject = projectRepository.findByIdAndDeletionDateNull(projectId).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"No such project $projectId")
+            ResponseStatusException(HttpStatus.BAD_REQUEST, "No such project $projectId")
         }
 
         if (oldProject.creatorId != userId) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST,"User $userId has no rights to change another $projectId")
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "User $userId has no rights to change another $projectId"
+            )
         }
 
         if (oldProject.tags.isNotEmpty()) {
@@ -118,10 +123,10 @@ class ProjectService {
     @Transactional
     fun deleteLikeProject(idProject: String, userId: String): ProjectResponse {
         val project = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"No such project $idProject")
+            ResponseStatusException(HttpStatus.BAD_REQUEST, "No such project $idProject")
         }
         val account: Account = accountRepository.findById(userId).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"No such user $userId")
+            ResponseStatusException(HttpStatus.BAD_REQUEST, "No such user $userId")
         }
 
         val likes = account.likes.toMutableList()
@@ -145,18 +150,21 @@ class ProjectService {
     @Transactional
     fun likeProject(idProject: String, userId: String): ProjectResponse {
         val project = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"No such project $idProject")
+            ResponseStatusException(HttpStatus.BAD_REQUEST, "No such project $idProject")
         }
 
         val account: Account = accountRepository.findById(userId).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"No such user $userId")
+            ResponseStatusException(HttpStatus.BAD_REQUEST, "No such user $userId")
         }
 
 
         val createdProjects = projectRepository.findByCreatorIdAndDeletionDateNull(userId)
 
         if (createdProjects.contains(project) || account.likes.firstOrNull { it.project.id == project.id && it.account.id == account.id } != null)
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST,"User $userId can't like his created or liked projected $idProject")
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "User $userId can't like his created or liked projected $idProject"
+            )
 
 
         val projectAccount = ProjectAccount(
@@ -175,11 +183,17 @@ class ProjectService {
 
     fun getAllAccountWhoLikedProject(userId: String, idProject: String): List<UserResponse> {
         val project = projectRepository.findUsingEntityGraphAccountById(idProject).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"getProjectViewsCount failed. No project found with id $idProject")
+            ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "getProjectViewsCount failed. No project found with id $idProject"
+            )
         }
 
         if (project.creatorId != userId) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST,"User $userId has no rights to check who liked another $project")
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "User $userId has no rights to check who liked another $project"
+            )
         }
 
         return project.accounts.map { keycloakService.getUserInfoById(it.account.id!!) }
@@ -188,7 +202,7 @@ class ProjectService {
     fun getAllLikedProjects(accountId: String): List<ProjectResponse> {
 
         val account = accountRepository.findById(accountId).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"No such user $accountId")
+            ResponseStatusException(HttpStatus.BAD_REQUEST, "No such user $accountId")
         }
 
         val likedProjects = account.likes
@@ -221,16 +235,19 @@ class ProjectService {
     @Transactional
     fun searchRecommendedProjects(accountId: String): List<ProjectResponse> {
         val account = accountRepository.findById(accountId).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"Account with id $accountId does not exist")
+            ResponseStatusException(HttpStatus.BAD_REQUEST, "Account with id $accountId does not exist")
         }
 
         //Разбиваем на теги тегов, слов из названия
         val tags: MutableList<String> =
             account.likes.map { it.project }.flatMap { it.tags }.map { it.name.lowercase() }.distinct().toMutableList()
         tags.addAll(
-            account.likes.map { it.project }.flatMap { it.title.lowercase().split(" ", ",", "/", "") }.distinct()
+            account.likes.map { it.project }
+                .flatMap { it.title.lowercase().replace("  ", " ").split(" ", ",", "/").distinct() }
                 .toMutableList()
         )
+
+        println(tags)
 
         // Get all another project which are not the same
         val allProjects = projectRepository.findAll()
@@ -295,7 +312,10 @@ class ProjectService {
         // то есть пустой объект, у которого заполнено только id, которое ты передал
         // метод findById обращается к базе
         val pr = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"getProjectLikesCount failed. No project found with id $idProject")
+            ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "getProjectLikesCount failed. No project found with id $idProject"
+            )
         }
         return projectRepository.countLikesById(pr.id.toString())
         //return pr.accounts.count()
@@ -303,7 +323,10 @@ class ProjectService {
 
     fun getProjectViewsCount(idProject: String): Int {
         val pr = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"getProjectViewsCount failed. No project found with id $idProject")
+            ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "getProjectViewsCount failed. No project found with id $idProject"
+            )
         }
         return projectRepository.countViewsById(pr.id.toString())
         //}.accountsView.count()
@@ -312,16 +335,16 @@ class ProjectService {
     @Transactional
     fun viewProject(idProject: String, userId: String): ProjectResponse {
         val project = projectRepository.findByIdAndDeletionDateNull(idProject).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"No such project $idProject")
+            ResponseStatusException(HttpStatus.BAD_REQUEST, "No such project $idProject")
         }
 
 
         val account: Account = accountRepository.findById(userId).orElseThrow {
-            ResponseStatusException(HttpStatus.BAD_REQUEST,"No such user $userId")
+            ResponseStatusException(HttpStatus.BAD_REQUEST, "No such user $userId")
         }
 
         if (project.accountsView.contains(account))
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST,"User $userId already viewed project $idProject")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "User $userId already viewed project $idProject")
 
         account.views.add(project)
         project.accountsView.add(account)
@@ -349,7 +372,7 @@ class ProjectService {
         for (id in projectIds) {
             //TODO проверить что работает когда удаляешь проект
             val project = projectRepository.findByIdAndDeletionDateNull(id).orElseThrow {
-                ResponseStatusException(HttpStatus.BAD_REQUEST,"No such project $id")
+                ResponseStatusException(HttpStatus.BAD_REQUEST, "No such project $id")
             }
             projectsResponse.add(project.toResponse())
         }
@@ -373,11 +396,14 @@ class ProjectService {
                 println("project.id = ${project.id} , projectId = $projectId , predicate matches ${project.id.toString() == projectId}")
                 project.id.toString() == projectId
             }
-            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST,"user with id $userId is not creator of project with id $projectId")
+            ?: throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "user with id $userId is not creator of project with id $projectId"
+            )
 
         // Проверяем, что проект ещё не удален
         if (userProject.deletionDate != null)
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST,"project $projectId is already deleted")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "project $projectId is already deleted")
 
         // Устанавлиеваем в поле deletionDate текущую дату
         userProject.deletionDate = LocalDate.now()
