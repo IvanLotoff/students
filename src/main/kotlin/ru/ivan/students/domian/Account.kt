@@ -13,7 +13,7 @@ data class Account(
 
     @Size(max = 5)
     @OneToMany(mappedBy = "account", cascade = [CascadeType.ALL])
-    val cvs: List<CV> = mutableListOf(),
+    val cvs: MutableList<CV> = mutableListOf(),
 
     @OneToMany(mappedBy = "account")
     val likes: MutableList<ProjectAccount> = mutableListOf(),

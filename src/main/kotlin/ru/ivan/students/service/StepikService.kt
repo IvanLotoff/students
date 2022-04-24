@@ -62,7 +62,7 @@ class StepikService {
             return node.get("access_token").toString().replace("\"", "")
         }
 
-        throw ResponseStatusException(HttpStatus.BAD_REQUEST,"No token")
+        throw ResponseStatusException(HttpStatus.BAD_REQUEST, "No token")
     }
 
 
@@ -112,6 +112,7 @@ class StepikService {
                         && !lower.contains("огэ")
                         && !lower.contains("егэ")
                         && !lower.contains("лицей")
+                        && !lower.contains("олимпиада")
                     )
                         treeNode.add(it)
                 }

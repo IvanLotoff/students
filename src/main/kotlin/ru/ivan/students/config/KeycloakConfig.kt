@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 
 @KeycloakConfiguration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-class KeycloakConfig : KeycloakWebSecurityConfigurerAdapter() {
+class KeycloakCjonfig : KeycloakWebSecurityConfigurerAdapter() {
     /**
      * Нужно добавить session authentication strategy bean тип которого должен быть RegisterSessionAuthenticationStrategy
      * для public или confidential клиентов и NullAuthenticatedSessionStrategy для bearer-only приложений.

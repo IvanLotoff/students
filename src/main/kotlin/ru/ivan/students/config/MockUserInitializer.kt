@@ -13,10 +13,6 @@ import ru.ivan.students.service.ProjectService
 import ru.ivan.students.service.StepikService
 
 
-/**
- * Класс для очистки пользователей и создания двух новых
- * Нужен для синхронизации keycloak с таблицей accounts
- */
 @Profile("demoProfile")
 @Component
 class MockUserInitializer : CommandLineRunner {
@@ -36,8 +32,8 @@ class MockUserInitializer : CommandLineRunner {
         keycloakService.removeAllUsers()
         println("all users are removed")
         createMockProjects(createMockUsers())
-        println("user1-user1 and user2-user2 are created")
-        stepikService.getCourses(1)
+        println("users created")
+        stepikService.getCourses(10)
         println("courses from Stepik loaded")
         newsService.getCourses(1)
         println("News loaded")
@@ -99,32 +95,66 @@ class MockUserInitializer : CommandLineRunner {
         return listId
     }
 
+    private final val tagList = mutableListOf(
+        TagRequest(
+            name = "Kotlin",
+            about = "Kotlin language junior skills",
+        ), TagRequest(
+            name = "Android",
+            about = "Android studio experience",
+        )
+    )
+
+    private final val pr1 = ProjectRequest(
+        title = "Android app smart camera",
+        description = "Написание клиентской части приложения для умной камеры с использованием уже написанного REST API",
+        communication = "vk: smart_camera",
+        tags = tagList
+    )
+
+    private final val pr2 = ProjectRequest(
+        title = "Android project",
+        description = "Проект по разработке приложения погоды на Android c использованием языка Kotlin",
+        communication = "telegram: @androider",
+        tags = tagList
+    )
+
+    private final val pr3 = ProjectRequest(
+        title = "Calculator app",
+        description = "Kotlin calculator project course work",
+        communication = "email : calc@mailrambler.ru",
+        tags = mutableListOf<TagRequest>()
+    )
+
+    private final val pr4 = ProjectRequest(
+        title = "3d game",
+        description = "Game on Unity 3D c# project CourseWork",
+        communication = "email : game@mailrambler.ru",
+        tags = mutableListOf<TagRequest>()
+    )
+
+    private final val pr5 = ProjectRequest(
+        title = "Mathematics research",
+        description = "Algebra and math analysis",
+        communication = "email : akge@gmalire.com",
+        tags = mutableListOf<TagRequest>()
+    )
+
     private fun createMockProjects(ids: List<String>) {
         val projectId = mutableListOf<String>()
 
-        val tagList = mutableListOf<TagRequest>(
-            TagRequest(
-                name = "string",
-                about = "string",
-            )
-        )
+        val projectList = mutableListOf<ProjectRequest>(pr1, pr2, pr3, pr4, pr5)
 
-        val pr = ProjectRequest(
-            title = "string",
-            description = "string",
-            communication = "string",
-            tags = tagList
-        )
-
+        var i = 0
         for (idUser in ids) {
-
-            var response = projectService.addProject(pr, idUser)
+            var response = projectService.addProject(projectList[i], idUser)
             projectId.add(response.id)
 //            projectService.likeProject(response.id, idUser)
 //            projectService.viewProject(response.id, idUser)
+            i++
         }
 
-        var i = 0
+        i = 0
         for (idUser in ids) {
             i++
             projectService.likeProject(projectId[i % 3], idUser)
@@ -137,7 +167,7 @@ class MockUserInitializer : CommandLineRunner {
         projectService.deleteLikeProject(projectId[0], ids[0])
         projectService.deleteLikeProject(projectId[3], ids[0])
 
-        projectService.updateProject(pr, ids[0], projectId[0])
+        projectService.updateProject(projectList[0], ids[0], projectId[0])
         projectService.addTagListToProject(tagList, projectId[0], ids[0])
 
         projectService.searchRecommendedProjects(ids[0])

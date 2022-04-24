@@ -25,6 +25,7 @@ class KeycloakService {
     private lateinit var accountService: AccountService
 
     fun registerUserAndGetToken(registrationRequest: RegistrationRequest): AccessTokenResponse? {
+        //Добавление в реляционную БД
         val user = registerUser(registrationRequest)
 
         return Keycloak.getInstance(
