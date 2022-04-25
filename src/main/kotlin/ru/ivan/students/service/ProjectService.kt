@@ -104,17 +104,20 @@ class ProjectService {
         val res = mutableListOf<ProjectResponse>()
         val keys = searchValue.lowercase().split(" ", ",")
 
-        for (key in keys) {
-            for (it in allProjects) {
+        for (it in allProjects) {
+            var counter = 0
+            for (key in keys) {
 
                 if (it.description.lowercase().contains(key)
                     || it.title.lowercase().contains(key)
                     || it.tags.map { it.name.lowercase() }.distinct().contains(key)
                     || it.tags.map { it.about?.lowercase() ?: "" }.distinct().contains(key)
                 ) {
-                    res.add(it.toResponse())
+                    counter++
                 }
             }
+            if (counter == keys.size)
+                res.add(it.toResponse())
         }
 
         return res

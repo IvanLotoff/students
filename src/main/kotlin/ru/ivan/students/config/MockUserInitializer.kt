@@ -107,7 +107,7 @@ class MockUserInitializer : CommandLineRunner {
 
     private final val pr1 = ProjectRequest(
         title = "Android app smart camera",
-        description = "Написание клиентской части приложения для умной камеры с использованием уже написанного REST API",
+        description = "Написание клиентской части приложения для умной камеры с использованием созданного REST API",
         communication = "vk: smart_camera",
         tags = tagList
     )
